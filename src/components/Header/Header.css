@@ -2,11 +2,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 25px 30px;
+  padding: 25px;
   background-color: #00284de6;
   color: #00e6ff;
   font-family: monospace;
-  height: 90px;
+  height: 100px;
 }
 
 .header-content {
@@ -16,7 +16,7 @@
   width: 100%;
   height: 100%;
   border: 2px solid #00e6ff;
-  padding: 0 20px;
+  padding: 0 30px;
   box-sizing: border-box;
   position: relative;
   background: 
@@ -27,7 +27,11 @@
       #00284de6 16px,
       #00284de6 24px
     ),
-    linear-gradient(to right, rgba(0, 40, 77, 0.8) 0%, #00e6ff 100%);
+    linear-gradient(
+      to right,
+      rgba(0, 40, 77, 0.8) 20%,
+      #00e6ff 90%
+    );
   background-size: 100% 100%;
 }
 
@@ -48,13 +52,24 @@
 }
 
 .completion-percentage {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   white-space: nowrap;
-  margin-right: 20px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  text-shadow: 0 0 5px rgba(0, 229, 255, 0.502);
+  position: absolute;
+  right: 130px; 
+  
+  /* Rectangle background */
+  background-color: #00284d;
+  padding: 2px 40px 2px 12px;
+  border-radius: 4px;
+  
+  /* Text styling */
+  color: #00284d;
+  -webkit-text-stroke: 1.5px #00e6ff;
+  font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
 .logo-container {
