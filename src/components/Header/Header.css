@@ -13,7 +13,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  width: calc(100% - 70px);
   height: 100%;
   border: 2px solid #00e6ff;
   padding: 0 30px;
@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   position: absolute;
-  right: 130px; 
+  right: 100px; 
   
   /* Rectangle background */
   background-color: #00284d;
@@ -75,12 +75,13 @@
 .logo-container {
   height: 75px;
   width: 75px;
+  position: absolute;
+  right: 12px; 
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  margin-left: 15px;
-  z-index: 2;
+  align-items: center;
 }
 
 .lumon-logo {
