@@ -39,7 +39,8 @@
   width: 100%;
   background-color: var(--dark-blue);
   color: var(--light-blue);
-  padding: 20px;
+  padding: 0;
+  scroll-behavior: auto;
 }
 
 /* Footer styles */

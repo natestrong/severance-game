@@ -12,22 +12,22 @@
   z-index: 100;
 }
 
-/* Add the double horizontal line separator */
+/* Improve the double horizontal line separator */
 .header::after {
   content: '';
   position: absolute;
-  bottom: -6px; /* Position it just below the header */
+  bottom: -10px; /* Position it slightly further below the header */
   left: 0;
   width: 100%;
-  height: 10px; /* Increased height for better visibility */
+  height: 14px; /* Increased height for better visibility */
   background-image: linear-gradient(
     to bottom,
-    #00e6ff 0%, /* First line */
+    #00e6ff 0%,
     #00e6ff 35%, 
     transparent 35%,
-    transparent 65%, /* Larger gap between lines */
+    transparent 65%,
     #00e6ff 65%,
-    #00e6ff 100% /* Second line */
+    #00e6ff 100%
   );
   z-index: 10; /* Ensure it's above other elements */
 }

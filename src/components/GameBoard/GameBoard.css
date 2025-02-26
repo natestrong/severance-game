@@ -8,6 +8,7 @@
   color: var(--light-blue);
   padding: 0;
   margin: 0;
+  cursor: default; /* Ensure default cursor throughout the game board */
 }
 
 .game-content {
@@ -18,6 +19,7 @@
   align-items: center;
   background-color: var(--dark-blue);
   padding: 0;
+  cursor: default; /* Ensure default cursor throughout */
 }
 
 .number-grid {
@@ -29,6 +31,7 @@
   height: 100%;
   padding: 50px;
   box-sizing: border-box;
+  cursor: default; /* Ensure default cursor throughout */
 }
 
 .grid-cell {
@@ -37,12 +40,112 @@
   align-items: center;
   font-size: 24px;
   font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s;
   background-color: transparent;
+  /* Add custom properties with default values */
+  --x-amplitude: 1px;
+  --y-amplitude: 1px;
+  --scale: 1;
+  /* The transform is now handled in the animation keyframes */
+  transform-origin: center center;
+  will-change: transform;
+  cursor: default !important; /* Force default cursor */
+  pointer-events: auto;
 }
 
-.grid-cell:hover {
-  transform: scale(1.2);
-  text-shadow: 0 0 8px rgba(0, 230, 255, 0.8);
+/* Special styling for the center cell */
+.center-cell {
+  color: #ff9900;
+  font-size: 36px;
+  text-shadow: 0 0 15px rgba(255, 153, 0, 0.9);
 }
+
+/* Add special styling for magnified cells */
+.magnified {
+  color: #00e6ff;
+  text-shadow: 0 0 8px rgba(0, 230, 255, 0.8);
+  z-index: 10;
+}
+
+/* Define multiple shake animations with varying intensities from tiny (1px) to large (10px) */
+@keyframes shake-tiny {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(1px, 0) rotate(0.1deg); }
+  40% { transform: scale(var(--scale)) translate(-1px, 0) rotate(-0.1deg); }
+  60% { transform: scale(var(--scale)) translate(0, 1px) rotate(0.1deg); }
+  80% { transform: scale(var(--scale)) translate(0, -1px) rotate(-0.1deg); }
+}
+
+@keyframes shake-very-small {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(2px, 0) rotate(0.3deg); }
+  40% { transform: scale(var(--scale)) translate(-2px, 0) rotate(-0.3deg); }
+  60% { transform: scale(var(--scale)) translate(0, 2px) rotate(0.2deg); }
+  80% { transform: scale(var(--scale)) translate(0, -2px) rotate(-0.2deg); }
+}
+
+@keyframes shake-small {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(3px, 0) rotate(0.5deg); }
+  40% { transform: scale(var(--scale)) translate(-3px, 0) rotate(-0.5deg); }
+  60% { transform: scale(var(--scale)) translate(0, 3px) rotate(0.3deg); }
+  80% { transform: scale(var(--scale)) translate(0, -3px) rotate(-0.3deg); }
+}
+
+@keyframes shake-medium {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(5px, 0) rotate(0.7deg); }
+  40% { transform: scale(var(--scale)) translate(-5px, 0) rotate(-0.7deg); }
+  60% { transform: scale(var(--scale)) translate(0, 5px) rotate(0.5deg); }
+  80% { transform: scale(var(--scale)) translate(0, -5px) rotate(-0.5deg); }
+}
+
+@keyframes shake-large {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(7px, 0) rotate(1deg); }
+  40% { transform: scale(var(--scale)) translate(-7px, 0) rotate(-1deg); }
+  60% { transform: scale(var(--scale)) translate(0, 7px) rotate(0.7deg); }
+  80% { transform: scale(var(--scale)) translate(0, -7px) rotate(-0.7deg); }
+}
+
+@keyframes shake-extra-large {
+  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
+  20% { transform: scale(var(--scale)) translate(10px, 0) rotate(1.5deg); }
+  40% { transform: scale(var(--scale)) translate(-10px, 0) rotate(-1.5deg); }
+  60% { transform: scale(var(--scale)) translate(0, 10px) rotate(1deg); }
+  80% { transform: scale(var(--scale)) translate(0, -10px) rotate(-1deg); }
+}
+
+/* Animation classes */
+.shake-tiny {
+  animation: shake-tiny 8s infinite ease-in-out;
+}
+
+.shake-very-small {
+  animation: shake-very-small 7.5s infinite ease-in-out;
+}
+
+.shake-small {
+  animation: shake-small 7s infinite ease-in-out;
+}
+
+.shake-medium {
+  animation: shake-medium 6.5s infinite ease-in-out;
+}
+
+.shake-large {
+  animation: shake-large 6s infinite ease-in-out;
+}
+
+.shake-extra-large {
+  animation: shake-extra-large 5.5s infinite ease-in-out;
+}
+
+/* Delay classes */
+.delay-0 { animation-delay: 0s; }
+.delay-1 { animation-delay: 1s; }
+.delay-2 { animation-delay: 2s; }
+.delay-3 { animation-delay: 3s; }
+.delay-4 { animation-delay: 4s; }
+.delay-5 { animation-delay: 5s; }
+.delay-6 { animation-delay: 6s; }

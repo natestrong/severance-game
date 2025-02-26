@@ -1,12 +1,73 @@
 .footer {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: var(--dark-blue);
   color: var(--light-blue);
-  padding: 0.75rem;
+  padding: 15px 0px 10px;
   text-align: center;
   font-family: monospace;
-  border-top: 1px solid var(--light-blue);
   position: sticky;
   bottom: 0;
   z-index: 100;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.number-boxes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.number-box {
+  padding: 0px 70px; /* Less vertical, more horizontal padding */
+  border: 2px solid var(--light-blue);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: var(--light-blue);
+  box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
+}
+
+.footer-divider {
+  width: 100%;
+  height: 2px;
+  background-color: var(--light-blue);
+  margin-bottom: 8px; /* Reduced margin to bring divider closer to bottom */
+}
+
+.footer-text {
+  font-size: 18px;
+  color: var(--light-blue);
+  letter-spacing: 2px;
+  margin-bottom: 5px; /* Added small bottom margin */
+}
+
+/* Improve the double horizontal line separator */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 14px;
+  background-image: linear-gradient(
+    to top,
+    #00e6ff 0%,
+    #00e6ff 35%, 
+    transparent 35%,
+    transparent 65%,
+    #00e6ff 65%,
+    #00e6ff 100%
+  );
+  z-index: 10;
 }
