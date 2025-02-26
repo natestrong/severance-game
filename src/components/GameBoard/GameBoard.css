@@ -1,22 +1,48 @@
 .gameboard {
-  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  width: 5000px;
+  height: 5000px;
   background-color: var(--dark-blue);
   color: var(--light-blue);
-  padding: 1rem;
+  padding: 0;
+  margin: 0;
 }
 
 .game-content {
   width: 100%;
-  max-width: 800px;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--dark-blue);
-  color: var(--light-blue);
-  border: 1px solid var(--light-blue);
-  box-shadow: 0 0 15px rgba(0, 230, 255, 0.2);
+  padding: 0;
+}
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(100, 1fr);
+  grid-template-rows: repeat(100, 1fr);
+  gap: 45px;
+  width: 100%;
+  height: 100%;
+  padding: 50px;
+  box-sizing: border-box;
+}
+
+.grid-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background-color: transparent;
+}
+
+.grid-cell:hover {
+  transform: scale(1.2);
+  text-shadow: 0 0 8px rgba(0, 230, 255, 0.8);
 }

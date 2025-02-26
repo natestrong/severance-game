@@ -10,7 +10,9 @@ function App() {
     <GameProvider>
       <div className="app-container">
         <Header />
-        <GameBoard />
+        <div className="gameboard-container">
+          <GameBoard />
+        </div>
         <Footer />
       </div>
     </GameProvider>

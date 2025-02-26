@@ -1,26 +1,42 @@
 #root {
   width: 100%;
   height: 100vh;
+  overflow: hidden; /* Prevent scrolling on the root element */
 }
 
 /* Define color variables for consistency */
 :root {
   --dark-blue: #00284d; /* Same as the header dark blue */
   --light-blue: #00e6ff; /* Same as the header light blue */
+  --medium-blue: #004a77;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--dark-blue);
   color: var(--light-blue);
   font-family: monospace;
+  position: relative;
+  overflow: hidden; /* Prevent scrolling on the container */
 }
 
-/* Game board styles */
-.game-board {
+/* Header styles */
+.header {
+  background-color: var(--dark-blue);
+  color: var(--light-blue);
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid var(--light-blue);
+}
+
+/* Game board styles - content area will scroll */
+.gameboard-container {
   flex: 1;
+  position: relative;
+  overflow: auto; /* Enable scrolling for the gameboard container */
+  width: 100%;
   background-color: var(--dark-blue);
   color: var(--light-blue);
   padding: 20px;

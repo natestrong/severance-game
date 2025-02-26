@@ -7,7 +7,9 @@
   color: #00e6ff;
   font-family: monospace;
   height: 100px;
-  position: relative; /* Ensure relative positioning for the separator */
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 /* Add the double horizontal line separator */
@@ -21,10 +23,10 @@
   background-image: linear-gradient(
     to bottom,
     #00e6ff 0%, /* First line */
-    #00e6ff 40%, 
-    transparent 40%,
-    transparent 80%, /* Gap between lines */
-    #00e6ff 60%,
+    #00e6ff 35%, 
+    transparent 35%,
+    transparent 65%, /* Larger gap between lines */
+    #00e6ff 65%,
     #00e6ff 100% /* Second line */
   );
   z-index: 10; /* Ensure it's above other elements */
