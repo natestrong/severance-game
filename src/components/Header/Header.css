@@ -1,0 +1,75 @@
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px 30px;
+  background-color: #00284de6;
+  color: #00e6ff;
+  font-family: monospace;
+  height: 90px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #00e6ff;
+  padding: 0 20px;
+  box-sizing: border-box;
+  position: relative;
+  background: 
+    repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent 16px,
+      #00284de6 16px,
+      #00284de6 24px
+    ),
+    linear-gradient(to right, rgba(0, 40, 77, 0.8) 0%, #00e6ff 100%);
+  background-size: 100% 100%;
+}
+
+.header-text {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 20px;
+}
+
+.level-name {
+  font-size: 1.7rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  text-shadow: 0 0 5px rgba(0, 230, 255, 0.5);
+}
+
+.completion-percentage {
+  font-size: 1.4rem;
+  white-space: nowrap;
+  margin-right: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 0 5px rgba(0, 229, 255, 0.502);
+}
+
+.logo-container {
+  height: 75px;
+  width: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 15px;
+  z-index: 2;
+}
+
+.lumon-logo {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
