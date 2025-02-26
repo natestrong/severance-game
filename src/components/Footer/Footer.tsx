@@ -2,15 +2,29 @@ import React from 'react';
 import './Footer.css';
 
 const Footer: React.FC = () => {
+  // Sample progress percentages (replace with actual values from your game logic)
+  const progressValues = [75, 75, 59, 52, 75];
+
   return (
     <footer className="footer">
       <div className="footer-content">
         <div className="number-boxes">
-          <div className="number-box">01</div>
-          <div className="number-box">02</div>
-          <div className="number-box">03</div>
-          <div className="number-box">04</div>
-          <div className="number-box">05</div>
+          {['01', '02', '03', '04', '05'].map((number, index) => (
+            <div key={index} className="number-container">
+              <div className="number-box">{number}</div>
+              <div className="progress-container">
+                <div 
+                  className="progress-bar" 
+                  style={{width: `${progressValues[index]}%`}}
+                  aria-valuenow={progressValues[index]}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <span className="progress-text">{progressValues[index]}%</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <div className="footer-divider"></div>
         <div className="footer-text">
