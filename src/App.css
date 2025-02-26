@@ -20,6 +20,7 @@
   font-family: monospace;
   position: relative;
   overflow: hidden; /* Prevent scrolling on the container */
+  cursor: url('/src/assets/cursor.png') 0 0, auto;
 }
 
 /* Header styles */
@@ -29,6 +30,7 @@
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid var(--light-blue);
+  cursor: url('/src/assets/cursor.png') 0 0, auto;
 }
 
 /* Game board styles - content area will scroll */
@@ -41,6 +43,7 @@
   color: var(--light-blue);
   padding: 0;
   scroll-behavior: auto;
+  cursor: url('/src/assets/cursor.png') 0 0, auto;
 }
 
 /* Footer styles */
@@ -50,4 +53,5 @@
   padding: 15px;
   text-align: center;
   border-top: 1px solid var(--light-blue);
+  cursor: url('/src/assets/cursor.png') 0 0, auto;
 }

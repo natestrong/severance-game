@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursor Generator & Tester</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1, h2 {
+            color: #00284d;
+        }
+        
+        .cursor-test-area {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #00284d;
+            margin: 20px 0;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .cursor-test-area::before {
+            content: "Hover in this area to test cursor";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #777;
+        }
+        
+        .cursor-example {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        
+        /* Cursor test styles */
+        .test-default {
+            cursor: url('../../assets/cursor.png') 0 0, auto;
+        }
+        
+        .test-hotspot-adjustment {
+            cursor: url('../../assets/cursor.png') 0 0, auto;
+        }
+        
+        code {
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .instructions {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 3px solid #00284d;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Custom Cursor Generator & Tester</h1>
+    
+    <div class="instructions">
+        <h2>Cursor Image Requirements</h2>
+        <ul>
+            <li>Size: Ideally 16x16 to 32x32 pixels</li>
+            <li>Format: PNG with transparency</li>
+            <li>File size: Keep it under 50KB</li>
+        </ul>
+        
+        <h2>Current Cursor Info</h2>
+        <p>Your current cursor.png is now 32x32 pixels - this is the ideal size.</p>
+        <p>The hotspot is set at the very top left (0,0).</p>
+    </div>
+    
+    <h2>Test Area</h2>
+    <div class="cursor-test-area test-default"></div>
+    
+    <h2>Example Configurations</h2>
+    
+    <div class="cursor-example">
+        <h3>Custom Cursor with Top Left Hotspot (0,0)</h3>
+        <code>cursor: url('./assets/cursor.png') 0 0, auto;</code>
+        <div class="cursor-test-area test-default"></div>
+    </div>
+    
+    <div class="cursor-example">
+        <h3>Same Custom Cursor (Second Test Area)</h3>
+        <code>cursor: url('./assets/cursor.png') 0 0, auto;</code>
+        <div class="cursor-test-area test-hotspot-adjustment"></div>
+    </div>
+    
+    <h2>CSS Implementation</h2>
+    <p>In your <code>index.css</code>, we're using this code:</p>
+    <pre><code>* {
+  cursor: url('./assets/cursor.png') 0 0, auto;
+}
+
+/* The hotspot is set at the very top left (0,0) */</code></pre>
+    
+    <p>For specific elements:</p>
+    <pre><code>button, a, [role="button"] {
+  cursor: url('src/assets/pointer-cursor.png'), pointer;
+}</code></pre>
+</body>
+</html>

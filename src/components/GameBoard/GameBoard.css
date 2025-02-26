@@ -8,7 +8,7 @@
   color: var(--light-blue);
   padding: 0;
   margin: 0;
-  cursor: default; /* Ensure default cursor throughout the game board */
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .game-content {
@@ -19,7 +19,7 @@
   align-items: center;
   background-color: var(--dark-blue);
   padding: 0;
-  cursor: default; /* Ensure default cursor throughout */
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .number-grid {
@@ -31,7 +31,7 @@
   height: 100%;
   padding: 50px;
   box-sizing: border-box;
-  cursor: default; /* Ensure default cursor throughout */
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .grid-cell {
@@ -49,7 +49,7 @@
   /* The transform is now handled in the animation keyframes */
   transform-origin: center center;
   will-change: transform;
-  cursor: default !important; /* Force default cursor */
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
   pointer-events: auto;
 }
 
@@ -58,6 +58,7 @@
   color: #ff9900;
   font-size: 36px;
   text-shadow: 0 0 15px rgba(255, 153, 0, 0.9);
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 /* Add special styling for magnified cells */
@@ -65,6 +66,7 @@
   color: #00e6ff;
   text-shadow: 0 0 8px rgba(0, 230, 255, 0.8);
   z-index: 10;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 /* Define multiple shake animations with varying intensities from tiny (1px) to large (10px) */
@@ -119,26 +121,32 @@
 /* Animation classes */
 .shake-tiny {
   animation: shake-tiny 8s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .shake-very-small {
   animation: shake-very-small 7.5s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .shake-small {
   animation: shake-small 7s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .shake-medium {
   animation: shake-medium 6.5s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .shake-large {
   animation: shake-large 6s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 .shake-extra-large {
   animation: shake-extra-large 5.5s infinite ease-in-out;
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
 /* Delay classes */

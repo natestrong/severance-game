@@ -15,6 +15,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  cursor: url('/cursor.png') 0 0, auto !important; /* Force custom cursor with !important */
 }
 
 html, body {
