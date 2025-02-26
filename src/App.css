@@ -3,11 +3,34 @@
   height: 100vh;
 }
 
+/* Define color variables for consistency */
+:root {
+  --dark-blue: #00284d; /* Same as the header dark blue */
+  --light-blue: #00e6ff; /* Same as the header light blue */
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #00192e;
-  color: #00e6ff;
+  background-color: var(--dark-blue);
+  color: var(--light-blue);
   font-family: monospace;
+}
+
+/* Game board styles */
+.game-board {
+  flex: 1;
+  background-color: var(--dark-blue);
+  color: var(--light-blue);
+  padding: 20px;
+}
+
+/* Footer styles */
+.footer {
+  background-color: var(--dark-blue);
+  color: var(--light-blue);
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid var(--light-blue);
 }

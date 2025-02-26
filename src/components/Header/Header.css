@@ -7,6 +7,27 @@
   color: #00e6ff;
   font-family: monospace;
   height: 100px;
+  position: relative; /* Ensure relative positioning for the separator */
+}
+
+/* Add the double horizontal line separator */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; /* Position it just below the header */
+  left: 0;
+  width: 100%;
+  height: 10px; /* Increased height for better visibility */
+  background-image: linear-gradient(
+    to bottom,
+    #00e6ff 0%, /* First line */
+    #00e6ff 40%, 
+    transparent 40%,
+    transparent 80%, /* Gap between lines */
+    #00e6ff 60%,
+    #00e6ff 100% /* Second line */
+  );
+  z-index: 10; /* Ensure it's above other elements */
 }
 
 .header-content {
