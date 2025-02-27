@@ -1,146 +1,206 @@
+/* Primary container for the game board */
 .gameboard {
   display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   justify-content: center;
-  align-items: flex-start;
-  width: 5000px;
-  height: 5000px;
+  align-items: center;
   background-color: var(--dark-blue);
   color: var(--light-blue);
-  padding: 0;
-  margin: 0;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
+/* Wrapper for game content ensuring proper size and scrolling */
 .game-content {
-  width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
   background-color: var(--dark-blue);
-  padding: 0;
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
-.number-grid {
-  display: grid;
-  grid-template-columns: repeat(100, 1fr);
-  grid-template-rows: repeat(100, 1fr);
-  gap: 45px;
+/* Container for the grid with scrolling capabilities */
+.number-grid-container {
   width: 100%;
   height: 100%;
-  padding: 50px;
-  box-sizing: border-box;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  overflow: auto;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  scrollbar-width: thin;
+  scrollbar-color: #454545 #2a2a2a; /* For Firefox */
+  background-color: var(--dark-blue);
 }
 
+/* Customize scrollbars for WebKit browsers */
+.number-grid-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.number-grid-container::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.number-grid-container::-webkit-scrollbar-thumb {
+  background-color: #454545;
+  border-radius: 6px;
+  border: 2px solid #2a2a2a;
+}
+
+.number-grid-container::-webkit-scrollbar-corner {
+  background: #2a2a2a;
+}
+
+/* The grid itself - the positioning container for cells */
+.number-grid {
+  position: relative; /* Important for absolute positioning of cells */
+  background-color: var(--dark-blue);
+}
+
+/* Individual cells in the grid */
 .grid-cell {
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
-  font-weight: bold;
-  transition: color 0.2s;
+  font-size: 32px; /* Increased font size */
+  color: var(--light-blue);
   background-color: transparent;
-  transform-origin: center center;
+  border: none;
+  box-sizing: border-box;
+  user-select: none;
+  overflow: hidden;
+  /* Optimize for performance */
   will-change: transform;
+  transform: translateZ(0);
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
-  pointer-events: auto;
+  /* Add subtle effect to make number stand out */
+  text-shadow: 0 0 2px rgba(100, 200, 255, 0.3);
 }
 
 /* Special styling for the center cell */
 .center-cell {
   color: #ff9900;
-  font-size: 36px;
+  font-size: 42px; /* Increased from 36px */
   text-shadow: 0 0 15px rgba(255, 153, 0, 0.9);
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+}
+
+/* Styling for scary cells - highlighted with a reddish glow */
+.scary-cell {
+  color: #ff3333;
+  text-shadow: 0 0 12px rgba(255, 51, 51, 0.9);
+  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  font-size: 36px; /* Make scary numbers a bit larger */
+  font-weight: bold; /* Make them bolder */
+}
+
+/* Styling for selected cells - highlighted with a green glow */
+.selected-cell {
+  color: #33ff33;
+  text-shadow: 0 0 15px rgba(51, 255, 51, 0.9);
+  font-weight: bold;
+}
+
+/* Styling for revealed neighbor cells - highlighted with a yellow glow */
+.revealed-cell {
+  color: #ffff33 !important; /* Use !important to ensure this style takes precedence */
+  text-shadow: 0 0 15px rgba(255, 255, 51, 0.9) !important;
+  background-color: rgba(255, 255, 0, 0.3) !important; /* Increase background highlight */
+  border: 2px solid rgba(255, 255, 0, 0.5) !important; /* Make border more visible */
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.6) !important; /* Add glow effect */
+  z-index: 2; /* Ensure revealed cells appear above others */
+  position: absolute; /* Required for z-index to work */
+  transform: scale(1.15) !important; /* Make slightly larger */
+  animation: pulse-yellow 1.5s infinite alternate !important; /* Add pulsing animation */
+  font-weight: bold;
+}
+
+/* Pulsing animation for revealed cells */
+@keyframes pulse-yellow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+  }
 }
 
 /* Define multiple shake animations with varying intensities from tiny (1px) to large (10px) */
 @keyframes shake-tiny {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(1px, 0) rotate(0.1deg); }
-  40% { transform: translate(-1px, 0) rotate(-0.1deg); }
-  60% { transform: translate(0, 1px) rotate(0.1deg); }
-  80% { transform: translate(0, -1px) rotate(-0.1deg); }
+  25% { transform: translate(-1px, 0) rotate(-0.5deg); }
+  50% { transform: translate(0, 1px) rotate(0.5deg); }
+  75% { transform: translate(1px, 0) rotate(-0.5deg); }
 }
 
 @keyframes shake-very-small {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(2px, 0) rotate(0.3deg); }
-  40% { transform: translate(-2px, 0) rotate(-0.3deg); }
-  60% { transform: translate(0, 2px) rotate(0.2deg); }
-  80% { transform: translate(0, -2px) rotate(-0.2deg); }
+  25% { transform: translate(-1px, -1px) rotate(-1deg); }
+  50% { transform: translate(1px, 1px) rotate(1deg); }
+  75% { transform: translate(1px, -1px) rotate(-1deg); }
 }
 
 @keyframes shake-small {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(3px, 0) rotate(0.5deg); }
-  40% { transform: translate(-3px, 0) rotate(-0.5deg); }
-  60% { transform: translate(0, 3px) rotate(0.3deg); }
-  80% { transform: translate(0, -3px) rotate(-0.3deg); }
+  25% { transform: translate(-2px, -2px) rotate(-2deg); }
+  50% { transform: translate(2px, 2px) rotate(2deg); }
+  75% { transform: translate(2px, -2px) rotate(-2deg); }
 }
 
 @keyframes shake-medium {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(5px, 0) rotate(0.7deg); }
-  40% { transform: translate(-5px, 0) rotate(-0.7deg); }
-  60% { transform: translate(0, 5px) rotate(0.5deg); }
-  80% { transform: translate(0, -5px) rotate(-0.5deg); }
+  25% { transform: translate(-3px, -3px) rotate(-3deg); }
+  50% { transform: translate(3px, 3px) rotate(3deg); }
+  75% { transform: translate(3px, -3px) rotate(-3deg); }
 }
 
 @keyframes shake-large {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(7px, 0) rotate(1deg); }
-  40% { transform: translate(-7px, 0) rotate(-1deg); }
-  60% { transform: translate(0, 7px) rotate(0.7deg); }
-  80% { transform: translate(0, -7px) rotate(-0.7deg); }
+  25% { transform: translate(-5px, -5px) rotate(-5deg); }
+  50% { transform: translate(5px, 5px) rotate(5deg); }
+  75% { transform: translate(5px, -5px) rotate(-5deg); }
 }
 
 @keyframes shake-extra-large {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(10px, 0) rotate(1.5deg); }
-  40% { transform: translate(-10px, 0) rotate(-1.5deg); }
-  60% { transform: translate(0, 10px) rotate(1deg); }
-  80% { transform: translate(0, -10px) rotate(-1deg); }
+  25% { transform: translate(-10px, -10px) rotate(-10deg); }
+  50% { transform: translate(10px, 10px) rotate(10deg); }
+  75% { transform: translate(10px, -10px) rotate(-10deg); }
 }
 
-/* Animation classes */
+/* Apply animations with varying intensities */
 .shake-tiny {
-  animation: shake-tiny 8s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-tiny 5s infinite ease-in-out;
 }
 
 .shake-very-small {
-  animation: shake-very-small 7.5s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-very-small 5s infinite ease-in-out;
 }
 
 .shake-small {
-  animation: shake-small 7s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-small 5s infinite ease-in-out;
 }
 
 .shake-medium {
-  animation: shake-medium 6.5s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-medium 5s infinite ease-in-out;
 }
 
 .shake-large {
-  animation: shake-large 6s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-large 5s infinite ease-in-out;
 }
 
 .shake-extra-large {
-  animation: shake-extra-large 5.5s infinite ease-in-out;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
+  animation: shake-extra-large 5s infinite ease-in-out;
 }
 
-/* Delay classes */
+/* Apply animation delays to create a more natural, less synchronized look */
 .delay-0 { animation-delay: 0s; }
-.delay-1 { animation-delay: 1s; }
-.delay-2 { animation-delay: 2s; }
-.delay-3 { animation-delay: 3s; }
-.delay-4 { animation-delay: 4s; }
-.delay-5 { animation-delay: 5s; }
-.delay-6 { animation-delay: 6s; }
+.delay-1 { animation-delay: -1s; }
+.delay-2 { animation-delay: -2s; }
+.delay-3 { animation-delay: -3s; }
+.delay-4 { animation-delay: -4s; }
+.delay-5 { animation-delay: -5s; }
+.delay-6 { animation-delay: -6s; }

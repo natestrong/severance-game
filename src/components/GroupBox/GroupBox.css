@@ -1,0 +1,52 @@
+.number-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.number-box {
+  padding: 0px 70px; /* Less vertical, more horizontal padding */
+  border: 2px solid var(--light-blue);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: var(--light-blue);
+  box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
+}
+
+.progress-container {
+  width: 100%;
+  height: 25px;
+  background-color: var(--dark-blue);
+  border: 2px solid var(--light-blue);
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--light-blue);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: var(--dark-blue);
+  font-weight: bold;
+  text-align: left;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-size: 16px;
+  padding-left: 8px;
+}
+
+/* When progress is at 100%, make text more visible */
+.progress-bar[aria-valuenow="100"] .progress-text {
+  color: var(--dark-blue);
+}
