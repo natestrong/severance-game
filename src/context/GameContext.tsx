@@ -20,6 +20,7 @@ type GridCell = {
   isScary: boolean;
   isSelected: boolean;
   isRevealed: boolean; // True if this cell is part of a revealed group
+  isRoot: boolean; // True if this is a root scary number
   groupId: string | null; // ID of the group this cell belongs to (if any)
 };
 
@@ -113,9 +114,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     return neighbors;
   };
 
-  // Initialize the grid with random numbers and some scary numbers
+  // Initialize the grid with random values and scary cells
   const initializeGrid = (size: number) => {
-    setGridSize(size);
+    console.log(`Initializing grid with size ${size}x${size}`);
+    
     const newGrid: GridCell[][] = [];
     
     // Create empty grid
@@ -129,6 +131,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           isScary: false,
           isSelected: false,
           isRevealed: false,
+          isRoot: false,   // New property to distinguish root scary numbers
           groupId: null
         });
       }
@@ -146,10 +149,12 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       
       if (!newGrid[row][col].isScary) {
         newGrid[row][col].isScary = true;
+        newGrid[row][col].isRoot = true;  // Mark as a root scary number
         count++;
       }
     }
     
+    setGridSize(size);
     setGrid(newGrid);
   };
 
@@ -200,6 +205,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       console.log(`Converting neighbor [${r}, ${c}] to scary and revealing it`);
       newGrid[r][c].isScary = true;     // Make the cell scary
       newGrid[r][c].isRevealed = true;  // Mark it as revealed
+      newGrid[r][c].isRoot = false;     // These are not root scary numbers
       newGrid[r][c].groupId = groupId;  // Assign to the same group
     });
     

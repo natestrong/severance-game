@@ -104,21 +104,21 @@
   font-weight: bold;
 }
 
-/* Styling for revealed neighbor cells - highlighted with a yellow glow */
+/* Styling for revealed neighbor cells - now using the same styling as scary cells */
 .revealed-cell {
-  color: #ffff33 !important; /* Use !important to ensure this style takes precedence */
-  text-shadow: 0 0 15px rgba(255, 255, 51, 0.9) !important;
-  background-color: rgba(255, 255, 0, 0.3) !important; /* Increase background highlight */
-  border: 2px solid rgba(255, 255, 0, 0.5) !important; /* Make border more visible */
-  box-shadow: 0 0 15px rgba(255, 255, 0, 0.6) !important; /* Add glow effect */
-  z-index: 2; /* Ensure revealed cells appear above others */
-  position: absolute; /* Required for z-index to work */
-  transform: scale(1.15) !important; /* Make slightly larger */
-  animation: pulse-yellow 1.5s infinite alternate !important; /* Add pulsing animation */
-  font-weight: bold;
+  color: #ff3333 !important; /* Same as scary-cell */
+  text-shadow: 0 0 12px rgba(255, 51, 51, 0.9) !important;
+  cursor: url('/cursor.png') 0 0, auto !important;
+  font-size: 36px !important; /* Same as scary cells */
+  font-weight: bold !important;
+  /* Remove any remaining yellow styling */
+  background-color: transparent !important;
+  border: none !important; 
+  box-shadow: none !important;
+  animation: none !important;
 }
 
-/* Pulsing animation for revealed cells */
+/* Keep the animation definition for compatibility */
 @keyframes pulse-yellow {
   0% {
     box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);

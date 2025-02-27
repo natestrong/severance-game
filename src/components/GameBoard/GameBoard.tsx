@@ -142,13 +142,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
   }, [grid, visibleArea]);
   
   // Function to generate random shake parameters for a cell - memoized by cell position
-  const generateShakeParams = useCallback((row: number, col: number, isScary: boolean) => {
+  const generateShakeParams = useCallback((row: number, col: number, isScary: boolean, isRevealed: boolean) => {
     // Use row and col to create a deterministic but seemingly random effect
     const cellSeed = (row * 1000 + col) % 100;
     
     // Define intensity options with weighted distribution
     // This makes tiny/small shakes more common and larger shakes less common
-    const intensityOptions = isScary 
+    // If the cell is revealed or scary, use more intense shaking
+    const needsIntenseShake = isScary || isRevealed;
+    const intensityOptions = needsIntenseShake
       ? ['shake-medium', 'shake-large', 'shake-extra-large']
       : ['shake-tiny', 'shake-very-small', 'shake-small'];
     
@@ -165,13 +167,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
       delay
     };
   }, []);
-  
+
   // Handle cell click events - memoized for performance
-  const handleCellClick = useCallback((row: number, col: number, isScary: boolean) => {
+  const handleCellClick = useCallback((row: number, col: number, isScary: boolean, isRoot: boolean) => {
     if (isScary) {
-      console.log(`Clicked scary number at [${row}, ${col}]`);
+      console.log(`Clicked scary number at [${row}, ${col}], isRoot: ${isRoot}`);
       selectScaryNumber(row, col);
-      revealScaryNeighbors(row, col);
+      
+      // Only root scary numbers should reveal neighbors
+      if (isRoot) {
+        console.log(`Revealing neighbors for root scary number at [${row}, ${col}]`);
+        revealScaryNeighbors(row, col);
+      } else {
+        console.log(`Not revealing neighbors for non-root scary number at [${row}, ${col}]`);
+      }
     } else {
       console.log(`Clicked regular number at [${row}, ${col}]`);
     }
@@ -179,7 +188,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
 
   // Create a reusable Cell component for better performance
   const Cell = useCallback(({ row, col, cell }: { row: number, col: number, cell: any }) => {
-    const { intensity, delay } = generateShakeParams(row, col, cell.isScary);
+    // For cells that are revealed but not selected, we want to give them the scary appearance
+    const isRevealedScary = cell.isRevealed && !cell.isSelected;
+    
+    // Get shake parameters based on whether the cell is scary or revealed
+    const { intensity, delay } = generateShakeParams(row, col, cell.isScary, isRevealedScary);
+    
     const isCenter = row === centerIndices.row && col === centerIndices.col;
     
     return (
@@ -191,12 +205,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
           ${intensity} ${delay}
           ${cell.isScary ? 'scary-cell' : ''}
           ${cell.isSelected ? 'selected-cell' : ''}
-          ${cell.isRevealed ? 'revealed-cell' : ''}
+          ${isRevealedScary ? 'revealed-cell' : ''}
         `}
-        onClick={() => handleCellClick(row, col, cell.isScary)}
+        onClick={() => handleCellClick(row, col, cell.isScary, cell.isRoot)}
         data-is-scary={cell.isScary}
         data-is-selected={cell.isSelected}
         data-is-revealed={cell.isRevealed}
+        data-is-root={cell.isRoot}
         style={{
           top: `${row * cellSize}px`,
           left: `${col * cellSize}px`,
