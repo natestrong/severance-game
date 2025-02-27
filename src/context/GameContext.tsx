@@ -315,9 +315,16 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     
     // If the group is complete, add its contribution to the box
     if (isComplete) {
-      updateGroupBox(assignment.boxId, 
-        groupBoxes.find(box => box.id === assignment.boxId)?.completionPercentage + assignment.potentialContribution
-      );
+      // Find the box
+      const box = groupBoxes.find(box => box.id === assignment.boxId);
+      
+      // Only update if the box exists
+      if (box) {
+        updateGroupBox(
+          assignment.boxId, 
+          box.completionPercentage + assignment.potentialContribution
+        );
+      }
     }
   };
 
