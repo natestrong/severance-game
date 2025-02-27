@@ -42,11 +42,6 @@
   font-weight: bold;
   transition: color 0.2s;
   background-color: transparent;
-  /* Add custom properties with default values */
-  --x-amplitude: 1px;
-  --y-amplitude: 1px;
-  --scale: 1;
-  /* The transform is now handled in the animation keyframes */
   transform-origin: center center;
   will-change: transform;
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
@@ -61,61 +56,53 @@
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
-/* Add special styling for magnified cells */
-.magnified {
-  color: #00e6ff;
-  text-shadow: 0 0 8px rgba(0, 230, 255, 0.8);
-  z-index: 10;
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
-}
-
 /* Define multiple shake animations with varying intensities from tiny (1px) to large (10px) */
 @keyframes shake-tiny {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(1px, 0) rotate(0.1deg); }
-  40% { transform: scale(var(--scale)) translate(-1px, 0) rotate(-0.1deg); }
-  60% { transform: scale(var(--scale)) translate(0, 1px) rotate(0.1deg); }
-  80% { transform: scale(var(--scale)) translate(0, -1px) rotate(-0.1deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(1px, 0) rotate(0.1deg); }
+  40% { transform: translate(-1px, 0) rotate(-0.1deg); }
+  60% { transform: translate(0, 1px) rotate(0.1deg); }
+  80% { transform: translate(0, -1px) rotate(-0.1deg); }
 }
 
 @keyframes shake-very-small {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(2px, 0) rotate(0.3deg); }
-  40% { transform: scale(var(--scale)) translate(-2px, 0) rotate(-0.3deg); }
-  60% { transform: scale(var(--scale)) translate(0, 2px) rotate(0.2deg); }
-  80% { transform: scale(var(--scale)) translate(0, -2px) rotate(-0.2deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(2px, 0) rotate(0.3deg); }
+  40% { transform: translate(-2px, 0) rotate(-0.3deg); }
+  60% { transform: translate(0, 2px) rotate(0.2deg); }
+  80% { transform: translate(0, -2px) rotate(-0.2deg); }
 }
 
 @keyframes shake-small {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(3px, 0) rotate(0.5deg); }
-  40% { transform: scale(var(--scale)) translate(-3px, 0) rotate(-0.5deg); }
-  60% { transform: scale(var(--scale)) translate(0, 3px) rotate(0.3deg); }
-  80% { transform: scale(var(--scale)) translate(0, -3px) rotate(-0.3deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(3px, 0) rotate(0.5deg); }
+  40% { transform: translate(-3px, 0) rotate(-0.5deg); }
+  60% { transform: translate(0, 3px) rotate(0.3deg); }
+  80% { transform: translate(0, -3px) rotate(-0.3deg); }
 }
 
 @keyframes shake-medium {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(5px, 0) rotate(0.7deg); }
-  40% { transform: scale(var(--scale)) translate(-5px, 0) rotate(-0.7deg); }
-  60% { transform: scale(var(--scale)) translate(0, 5px) rotate(0.5deg); }
-  80% { transform: scale(var(--scale)) translate(0, -5px) rotate(-0.5deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(5px, 0) rotate(0.7deg); }
+  40% { transform: translate(-5px, 0) rotate(-0.7deg); }
+  60% { transform: translate(0, 5px) rotate(0.5deg); }
+  80% { transform: translate(0, -5px) rotate(-0.5deg); }
 }
 
 @keyframes shake-large {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(7px, 0) rotate(1deg); }
-  40% { transform: scale(var(--scale)) translate(-7px, 0) rotate(-1deg); }
-  60% { transform: scale(var(--scale)) translate(0, 7px) rotate(0.7deg); }
-  80% { transform: scale(var(--scale)) translate(0, -7px) rotate(-0.7deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(7px, 0) rotate(1deg); }
+  40% { transform: translate(-7px, 0) rotate(-1deg); }
+  60% { transform: translate(0, 7px) rotate(0.7deg); }
+  80% { transform: translate(0, -7px) rotate(-0.7deg); }
 }
 
 @keyframes shake-extra-large {
-  0%, 100% { transform: scale(var(--scale)) translate(0, 0) rotate(0deg); }
-  20% { transform: scale(var(--scale)) translate(10px, 0) rotate(1.5deg); }
-  40% { transform: scale(var(--scale)) translate(-10px, 0) rotate(-1.5deg); }
-  60% { transform: scale(var(--scale)) translate(0, 10px) rotate(1deg); }
-  80% { transform: scale(var(--scale)) translate(0, -10px) rotate(-1deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(10px, 0) rotate(1.5deg); }
+  40% { transform: translate(-10px, 0) rotate(-1.5deg); }
+  60% { transform: translate(0, 10px) rotate(1deg); }
+  80% { transform: translate(0, -10px) rotate(-1deg); }
 }
 
 /* Animation classes */
