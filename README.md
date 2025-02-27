@@ -104,3 +104,31 @@ Below are the game rules that will be progressively implemented, with checkboxes
 5. Develop the group completion mechanics and number disappearance
 6. Implement the scoring system and random Group Box assignment
 7. Add the level completion detection and celebration
+
+## Implementation Todos
+
+### Context and State Management
+- [ ] Enhance GameContext to store scary numbers
+- [ ] Add state for tracking the five Group Boxes and their completion percentages 
+- [ ] Create functions for calculating neighbors of a cell
+- [ ] Implement chain detection algorithm to verify connected scary numbers
+- [ ] Add game completion calculation based on Group Box percentages
+
+### UI Components
+- [ ] Create Group Boxes component for the bottom of the page
+- [ ] Add click handlers to GameBoard for scary number selection
+- [ ] Implement visual feedback for selected scary numbers
+- [ ] Add progress tracking UI for overall completion
+- [ ] Create visual effects for completed groups
+
+### Game Logic
+- [ ] Generate scary numbers (1% of total grid) with distinct jitter
+- [ ] Implement function to reveal neighboring scary numbers (1-20) when one is clicked
+- [ ] Create validation for unbroken chains of scary numbers
+- [ ] Implement group completion detection when all connected scary numbers are selected
+- [ ] Develop random assignment of completed groups to available Group Boxes
+
+### Performance and Optimization
+- [ ] Optimize grid rendering for large number of cells
+- [ ] Implement efficient neighbor calculation
+- [ ] Add proper event handling to prevent excessive re-renders
