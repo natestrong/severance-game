@@ -142,30 +142,33 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
   }, [grid, visibleArea]);
   
   // Function to generate random shake parameters for a cell - memoized by cell position
-  const generateShakeParams = useCallback((row: number, col: number, isScary: boolean, isRevealed: boolean) => {
-    // Use row and col to create a deterministic but seemingly random effect
-    const cellSeed = (row * 1000 + col) % 100;
+  const generateShakeParams = useCallback((row: number, col: number, isScary: boolean, isRevealed: boolean): { intensity: string, delay: string, hasJitter: boolean } => {
+    // Use deterministic but seemingly random shake intensity based on position
+    const posHash = (row * 17 + col * 31) % 100;
     
-    // Define intensity options with weighted distribution
-    // This makes tiny/small shakes more common and larger shakes less common
-    // If the cell is revealed or scary, use more intense shaking
-    const needsIntenseShake = isScary || isRevealed;
-    const intensityOptions = needsIntenseShake
-      ? ['shake-medium', 'shake-large', 'shake-extra-large']
-      : ['shake-tiny', 'shake-very-small', 'shake-small'];
+    // Distribute shake intensities with a bias towards more shake
+    let intensity = '';
+    if (posHash < 10) {
+      intensity = 'shake-microscopic'; // 10% chance of microscopic shake
+    } else if (posHash < 30) {
+      intensity = 'shake-tiny'; // 20% chance of tiny shake
+    } else if (posHash < 60) {
+      intensity = 'shake-small'; // 30% chance of small shake
+    } else if (posHash < 85) {
+      intensity = 'shake-medium'; // 25% chance of medium shake
+    } else {
+      intensity = 'shake-large'; // 15% chance of large shake
+    }
     
-    const intensityIndex = cellSeed % intensityOptions.length;
-    const intensity = intensityOptions[intensityIndex];
+    // Apply delay based on position to make the shake feel more natural
+    const delayHash = (row * 13 + col * 29) % 20;
+    const delay = `delay-${delayHash}`;
+
+    // Determine if this cell should have the jitter effect
+    // Only scary numbers (original or revealed) have jitter
+    const hasJitter = isScary || isRevealed;
     
-    // Randomly select delay class with more options
-    const delays = ['delay-0', 'delay-1', 'delay-2', 'delay-3', 'delay-4', 'delay-5', 'delay-6'];
-    const delayIndex = Math.floor(cellSeed / 10) % delays.length;
-    const delay = delays[delayIndex];
-    
-    return {
-      intensity,
-      delay
-    };
+    return { intensity, delay, hasJitter };
   }, []);
 
   // Handle cell click events - memoized for performance
@@ -192,9 +195,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
     const isRevealedScary = cell.isRevealed && !cell.isSelected;
     
     // Get shake parameters based on whether the cell is scary or revealed
-    const { intensity, delay } = generateShakeParams(row, col, cell.isScary, isRevealedScary);
+    const { intensity, delay, hasJitter } = generateShakeParams(row, col, cell.isScary, isRevealedScary);
     
     const isCenter = row === centerIndices.row && col === centerIndices.col;
+    
+    // Only apply jitter to scary cells that aren't selected
+    // When selected, keep the normal shake but remove jitter
+    const shouldApplyJitter = hasJitter && !cell.isSelected;
     
     return (
       <div 
@@ -217,12 +224,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) 
           left: `${col * cellSize}px`,
           width: `${cellSize}px`,
           height: `${cellSize}px`,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
         }}
       >
-        {cell.value}
+        <div className="cell-content">
+          {shouldApplyJitter ? (
+            <span className="jitter">{cell.value}</span>
+          ) : (
+            cell.value
+          )}
+        </div>
       </div>
     );
   }, [cellSize, centerIndices, generateShakeParams, handleCellClick]);

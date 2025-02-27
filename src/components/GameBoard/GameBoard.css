@@ -61,7 +61,11 @@
 
 /* Individual cells in the grid */
 .grid-cell {
+  font-family: monospace;
+  font-size: 32px;
+  cursor: pointer;
   position: absolute;
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,8 +73,6 @@
   color: var(--light-blue);
   background-color: transparent;
   border: none;
-  box-sizing: border-box;
-  user-select: none;
   overflow: hidden;
   /* Optimize for performance */
   will-change: transform;
@@ -80,42 +82,74 @@
   text-shadow: 0 0 2px rgba(100, 200, 255, 0.3);
 }
 
-/* Special styling for the center cell */
+/* Inner content container for handling zooms */
+.grid-cell .cell-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.4s ease-out; /* Re-add transition with slightly longer duration */
+}
+
+/* Special styling for the center cell - remove orange styling */
 .center-cell {
-  color: #ff9900;
-  font-size: 42px; /* Increased from 36px */
-  text-shadow: 0 0 15px rgba(255, 153, 0, 0.9);
+  background-color: rgba(0, 100, 200, 0.2);
+  z-index: 3; /* Put center cell above all others */
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }
 
-/* Styling for scary cells - highlighted with a reddish glow */
+/* Styling for scary cells - now identical to normal cells except for cursor */
 .scary-cell {
-  color: #ff3333;
-  text-shadow: 0 0 12px rgba(255, 51, 51, 0.9);
-  cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
-  font-size: 36px; /* Make scary numbers a bit larger */
-  font-weight: bold; /* Make them bolder */
+  cursor: url('/cursor.png') 0 0, auto; /* Keep the custom cursor */
 }
 
-/* Styling for selected cells - highlighted with a green glow */
+/* Styling for selected cells - zoomed in version with subtle glow effect */
 .selected-cell {
-  color: #33ff33;
-  text-shadow: 0 0 15px rgba(51, 255, 51, 0.9);
-  font-weight: bold;
+  z-index: 2; /* Ensure selected cells appear above others */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4); /* Subtle glow matching text color */
 }
 
-/* Styling for revealed neighbor cells - now using the same styling as scary cells */
+.selected-cell.scary-cell {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Slightly stronger but still subtle glow */
+}
+
+.selected-cell .cell-content {
+  transform: scale(1.3); /* 30% larger */
+}
+
+.selected-cell.scary-cell .cell-content {
+  transform: scale(1.4); /* 40% larger for scary numbers */
+}
+
+/* Styling for revealed neighbor cells - now same as normal cells */
 .revealed-cell {
-  color: #ff3333 !important; /* Same as scary-cell */
-  text-shadow: 0 0 12px rgba(255, 51, 51, 0.9) !important;
   cursor: url('/cursor.png') 0 0, auto !important;
-  font-size: 36px !important; /* Same as scary cells */
-  font-weight: bold !important;
-  /* Remove any remaining yellow styling */
+  /* Remove any remaining custom styling */
   background-color: transparent !important;
   border: none !important; 
   box-shadow: none !important;
-  animation: none !important;
+}
+
+/* Define a new fast jitter animation that will be applied to scary numbers only */
+@keyframes jitter {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1px, -1px); }
+  20% { transform: translate(1px, -1px); }
+  30% { transform: translate(-2px, 0px); }
+  40% { transform: translate(2px, 0px); }
+  50% { transform: translate(-1px, 1px); }
+  60% { transform: translate(1px, 1px); }
+  70% { transform: translate(-3px, -1px); }
+  80% { transform: translate(3px, 1px); }
+  90% { transform: translate(-2px, 2px); }
+}
+
+/* Class to apply the jitter effect */
+.jitter {
+  /* Apply the fast jitter animation */
+  animation: jitter 0.4s infinite steps(10);
+  /* We'll handle the combining of animations in the Cell component */
 }
 
 /* Keep the animation definition for compatibility */
@@ -128,72 +162,63 @@
   }
 }
 
-/* Define multiple shake animations with varying intensities from tiny (1px) to large (10px) */
-@keyframes shake-tiny {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-1px, 0) rotate(-0.5deg); }
-  50% { transform: translate(0, 1px) rotate(0.5deg); }
-  75% { transform: translate(1px, 0) rotate(-0.5deg); }
+/* 
+ * Shake Animations with Increased Intensities
+ */
+@keyframes tiny-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -2px); }
 }
 
-@keyframes shake-very-small {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-1px, -1px) rotate(-1deg); }
-  50% { transform: translate(1px, 1px) rotate(1deg); }
-  75% { transform: translate(1px, -1px) rotate(-1deg); }
+@keyframes small-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  50% { transform: translate(3px, -2px); }
+  75% { transform: translate(-2px, -3px); }
 }
 
-@keyframes shake-small {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-2px, -2px) rotate(-2deg); }
-  50% { transform: translate(2px, 2px) rotate(2deg); }
-  75% { transform: translate(2px, -2px) rotate(-2deg); }
+@keyframes medium-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-5px, 3px); }
+  50% { transform: translate(5px, -3px); }
+  75% { transform: translate(-3px, -5px); }
 }
 
-@keyframes shake-medium {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-3px, -3px) rotate(-3deg); }
-  50% { transform: translate(3px, 3px) rotate(3deg); }
-  75% { transform: translate(3px, -3px) rotate(-3deg); }
+@keyframes large-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-8px, 4px); }
+  50% { transform: translate(7px, -4px); }
+  75% { transform: translate(-4px, -7px); }
 }
 
-@keyframes shake-large {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-5px, -5px) rotate(-5deg); }
-  50% { transform: translate(5px, 5px) rotate(5deg); }
-  75% { transform: translate(5px, -5px) rotate(-5deg); }
+@keyframes extreme-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-12px, 6px); }
+  50% { transform: translate(10px, -7px); }
+  75% { transform: translate(-8px, -10px); }
 }
 
-@keyframes shake-extra-large {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-10px, -10px) rotate(-10deg); }
-  50% { transform: translate(10px, 10px) rotate(10deg); }
-  75% { transform: translate(10px, -10px) rotate(-10deg); }
+/* Apply animations with different durations and delays */
+.shake-microscopic {
+  animation: tiny-shake 7s infinite;
 }
 
-/* Apply animations with varying intensities */
 .shake-tiny {
-  animation: shake-tiny 5s infinite ease-in-out;
-}
-
-.shake-very-small {
-  animation: shake-very-small 5s infinite ease-in-out;
+  animation: small-shake 6s infinite;
 }
 
 .shake-small {
-  animation: shake-small 5s infinite ease-in-out;
+  animation: medium-shake 6s infinite;
 }
 
 .shake-medium {
-  animation: shake-medium 5s infinite ease-in-out;
+  animation: large-shake 5s infinite;
 }
 
 .shake-large {
-  animation: shake-large 5s infinite ease-in-out;
-}
-
-.shake-extra-large {
-  animation: shake-extra-large 5s infinite ease-in-out;
+  animation: extreme-shake 5s infinite;
 }
 
 /* Apply animation delays to create a more natural, less synchronized look */
@@ -204,3 +229,6 @@
 .delay-4 { animation-delay: -4s; }
 .delay-5 { animation-delay: -5s; }
 .delay-6 { animation-delay: -6s; }
+.delay-7 { animation-delay: -7s; }
+.delay-8 { animation-delay: -8s; }
+.delay-9 { animation-delay: -9s; }
