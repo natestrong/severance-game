@@ -80,6 +80,7 @@
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
   /* Add subtle effect to make number stand out */
   text-shadow: 0 0 2px rgba(100, 200, 255, 0.3);
+  padding: 25px; /* Increase padding from 15px to 25px for more space between numbers */
 }
 
 /* Inner content container for handling zooms */
@@ -94,7 +95,6 @@
 
 /* Special styling for the center cell - remove orange styling */
 .center-cell {
-  background-color: rgba(0, 100, 200, 0.2);
   z-index: 3; /* Put center cell above all others */
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
 }

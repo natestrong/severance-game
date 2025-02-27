@@ -7,7 +7,7 @@ interface GameBoardProps {
   cellSize?: number; // Size in pixels for each cell
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 80 }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 }) => {
   // Use the game context for grid management and scary numbers
   const { 
     grid, 
