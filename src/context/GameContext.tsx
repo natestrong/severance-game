@@ -40,7 +40,7 @@ interface GameContextType {
   grid: GridCell[][];
   gridSize: number;
   revealScaryNeighbors: (row: number, col: number) => void;
-  selectScaryNumber: (row: number, col: number) => void;
+  selectScaryNumber: (row: number, col: number, isRoot: boolean) => void;
   isGroupComplete: (groupId: string) => boolean;
   
   // Game state management
@@ -164,70 +164,103 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const revealScaryNeighbors = (row: number, col: number) => {
     console.log('Starting revealScaryNeighbors for', row, col);
     
-    // Create a DEEP copy of the grid to ensure proper state updates
-    const newGrid = grid.map(row => [...row]);
-    const neighbors = getNeighborCells(row, col);
-    console.log('Found neighbors:', neighbors.length);
-    
-    // Choose a random group ID for this chain of scary numbers
-    // We'll use the timestamp plus a random number to ensure uniqueness
-    const groupId = `group-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    
-    // List of all regular neighbors we might convert to scary
-    const regularNeighbors: {row: number, col: number}[] = [];
-    
-    // Find all regular neighbors (non-scary, non-selected cells)
-    neighbors.forEach(({row: r, col: c}) => {
-      console.log(`Checking neighbor [${r}, ${c}] - isScary: ${newGrid[r][c].isScary}, isSelected: ${newGrid[r][c].isSelected}`);
-      if (!newGrid[r][c].isScary && !newGrid[r][c].isSelected) {
-        regularNeighbors.push({row: r, col: c});
-      }
-    });
-    
-    console.log('Found regular neighbors to convert:', regularNeighbors.length);
-    
-    // Determine how many neighbors to convert to scary (between 1 and 20, or all if less)
-    const maxNeighborsToConvert = Math.min(
-      regularNeighbors.length,
-      Math.max(1, Math.floor(Math.random() * 20) + 1)
-    );
-    console.log('Will convert', maxNeighborsToConvert, 'neighbors to scary');
-    
-    // Shuffle the array to get random neighbors
-    for (let i = regularNeighbors.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [regularNeighbors[i], regularNeighbors[j]] = [regularNeighbors[j], regularNeighbors[i]];
+    // Make sure the cell is a root scary cell
+    if (!grid[row][col].isScary || !grid[row][col].isRoot) {
+      console.log(`Cell at [${row}, ${col}] is not a root scary cell, isScary: ${grid[row][col].isScary}, isRoot: ${grid[row][col].isRoot}`);
+      return;
     }
     
-    // Convert only the chosen number of neighbors to scary
-    const neighborsToConvert = regularNeighbors.slice(0, maxNeighborsToConvert);
+    // DEBUG: Log counts of scary cells and root scary cells in the grid
+    let scaryCount = 0;
+    let rootScaryCount = 0;
     
-    // Convert the neighbors to scary and mark as revealed
-    neighborsToConvert.forEach(({row: r, col: c}) => {
-      console.log(`Converting neighbor [${r}, ${c}] to scary and revealing it`);
-      newGrid[r][c].isScary = true;     // Make the cell scary
-      newGrid[r][c].isRevealed = true;  // Mark it as revealed
-      newGrid[r][c].isRoot = false;     // These are not root scary numbers
-      newGrid[r][c].groupId = groupId;  // Assign to the same group
+    grid.forEach(row => {
+      row.forEach(cell => {
+        if (cell.isScary) scaryCount++;
+        if (cell.isRoot) rootScaryCount++;
+      });
     });
     
-    // Also mark the clicked cell with the same group ID and as selected
+    console.log(`Current grid has ${scaryCount} scary cells, ${rootScaryCount} of which are root scary cells`);
+    
+    // Create a DEEP copy of the grid to ensure proper state updates
+    const newGrid = JSON.parse(JSON.stringify(grid));
+    console.log('Created deep copy of grid');
+    
+    // Choose a random group ID for this chain of scary numbers
+    const groupId = `group-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    console.log(`Created group ID: ${groupId}`);
+    
+    // Mark the clicked cell with the group ID
     newGrid[row][col].groupId = groupId;
     newGrid[row][col].isSelected = true; // Mark the clicked cell as selected
-    console.log(`Marked clicked cell [${row}, ${col}] as selected`);
+    console.log(`Marked clicked cell [${row}, ${col}] as selected, isScary: ${newGrid[row][col].isScary}`);
+    
+    // Determine how many scary neighbors to create (between 1 and 20)
+    const numToCreate = Math.max(1, Math.floor(Math.random() * 20) + 1);
+    console.log(`Will create ${numToCreate} scary neighbors in a snake-like chain`);
+    
+    // Keep track of all cells in the chain (starting with the root cell)
+    const chainCells: {row: number, col: number}[] = [{row, col}];
+    
+    // Keep track of newly created scary cells
+    const newlyCreatedScary: {row: number, col: number}[] = [];
+    
+    // Create the chain of scary numbers
+    let attemptsRemaining = 100; // Safeguard against infinite loops
+    
+    while (newlyCreatedScary.length < numToCreate && attemptsRemaining > 0) {
+      attemptsRemaining--;
+      
+      // Randomly select any existing cell in the chain to grow from
+      const sourceIndex = Math.floor(Math.random() * chainCells.length);
+      const sourceCell = chainCells[sourceIndex];
+      
+      // Get all neighbors of this source cell
+      const neighbors = getNeighborCells(sourceCell.row, sourceCell.col);
+      
+      // Filter to valid candidates (not already scary or selected)
+      const validCandidates = neighbors.filter(({row: r, col: c}) => {
+        return !newGrid[r][c].isScary && !newGrid[r][c].isSelected;
+      });
+      
+      if (validCandidates.length > 0) {
+        // Randomly select one neighbor to make scary
+        const randomIndex = Math.floor(Math.random() * validCandidates.length);
+        const nextCell = validCandidates[randomIndex];
+        
+        // Make this cell scary
+        newGrid[nextCell.row][nextCell.col].isScary = true;
+        newGrid[nextCell.row][nextCell.col].isRevealed = true;
+        newGrid[nextCell.row][nextCell.col].isRoot = false;
+        newGrid[nextCell.row][nextCell.col].groupId = groupId;
+        
+        // Add this new cell to both our chain and newly created list
+        chainCells.push(nextCell);
+        newlyCreatedScary.push(nextCell);
+        
+        console.log(`Added new scary cell at [${nextCell.row}, ${nextCell.col}]`);
+      }
+    }
+    
+    console.log(`Created ${newlyCreatedScary.length} new scary cells in a snake-like chain`);
     
     // Assign this new chain to a group box with the least completion
     assignGroupToBox(groupId);
     
-    // Use functional update to ensure we're working with the latest state
+    // Update the grid with our changes
     setGrid(newGrid);
-    console.log('Grid updated with new scary neighbors');
   };
 
   // Select a scary number
-  const selectScaryNumber = (row: number, col: number) => {
-    console.log(`Selecting scary number at [${row}, ${col}]`);
-    if (!grid[row][col].isScary) return;
+  const selectScaryNumber = (row: number, col: number, isRoot: boolean) => {
+    console.log(`Selecting scary number at [${row}, ${col}], isRoot: ${isRoot}`);
+    
+    // First, check if this is actually a scary number
+    if (!grid[row][col].isScary) {
+      console.log(`Cell at [${row}, ${col}] is not scary, aborting selectScaryNumber`);
+      return;
+    }
     
     // Don't do anything if the cell is already counted
     if (grid[row][col].isCounted) {
@@ -235,76 +268,34 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       return;
     }
     
+    console.log(`Cell is valid for selection, proceeding with selectScaryNumber`);
+    
     // Create a DEEP copy of the grid
-    const newGrid = grid.map(row => [...row]);
+    const newGrid = JSON.parse(JSON.stringify(grid));
     newGrid[row][col].isSelected = true;
+    
+    console.log(`Marked cell [${row}, ${col}] as selected`);
     
     // If the cell is part of a group, update the group's completion
     if (newGrid[row][col].groupId) {
       const groupId = newGrid[row][col].groupId;
+      console.log(`Cell belongs to group ${groupId}, checking for completion`);
       
       // Check if the group is now complete
       const isComplete = checkAndHandleGroupCompletion(newGrid, groupId);
       
       if (!isComplete) {
         // Just update the grid with the new selected state if group is not complete
+        console.log(`Group ${groupId} is not complete yet, updating grid`);
         setGrid(newGrid);
-        console.log(`Updated grid with selected cell at [${row}, ${col}]`);
+      } else {
+        console.log(`Group ${groupId} is now complete!`);
       }
     } else {
+      console.log(`Cell does not belong to a group, just updating grid`);
       // Use functional update to ensure we're working with the latest state
       setGrid(newGrid);
-      console.log(`Updated grid with selected cell at [${row}, ${col}]`);
     }
-  };
-
-  // Check if a group is complete and handle it if it is
-  const checkAndHandleGroupCompletion = (gridState: GridCell[][], groupId: string | null) => {
-    if (!groupId) return false;
-    
-    // Count total cells in group and selected cells in group
-    let totalInGroup = 0;
-    let selectedInGroup = 0;
-    
-    // Find all cells in this group
-    const cellsInGroup: {row: number, col: number}[] = [];
-    
-    for (let row = 0; row < gridState.length; row++) {
-      for (let col = 0; col < gridState[row].length; col++) {
-        const cell = gridState[row][col];
-        if (cell.groupId === groupId) {
-          totalInGroup++;
-          cellsInGroup.push({row, col});
-          if (cell.isSelected) {
-            selectedInGroup++;
-          }
-        }
-      }
-    }
-    
-    // Group is complete if all cells in the group are selected
-    const isComplete = totalInGroup > 0 && selectedInGroup === totalInGroup;
-    
-    if (isComplete) {
-      console.log(`Group ${groupId} is complete with ${totalInGroup} cells selected`);
-      
-      // Make a deep copy of the grid to work with
-      const newGrid = gridState.map(row => [...row]);
-      
-      // When a group is complete, mark all cells as counted but keep them visually selected
-      cellsInGroup.forEach(({row, col}) => {
-        // Keep the cells visually selected but mark them as counted
-        newGrid[row][col].isCounted = true;
-      });
-      
-      // Update the group box's completion percentage with the collected points
-      updateGroupCompletionAfterCollect(groupId, totalInGroup);
-      
-      // Update the grid to mark the completed group as counted
-      setGrid(newGrid);
-    }
-    
-    return isComplete;
   };
 
   // Check if a group is complete (all scary cells selected)
@@ -416,6 +407,55 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         Math.min(100, box.completionPercentage + pointsToAdd)
       );
     }
+  };
+
+  // Check if a group is complete and handle it if it is
+  const checkAndHandleGroupCompletion = (gridState: GridCell[][], groupId: string | null) => {
+    if (!groupId) return false;
+    
+    // Count total cells in group and selected cells in group
+    let totalInGroup = 0;
+    let selectedInGroup = 0;
+    
+    // Find all cells in this group
+    const cellsInGroup: {row: number, col: number}[] = [];
+    
+    for (let row = 0; row < gridState.length; row++) {
+      for (let col = 0; col < gridState[row].length; col++) {
+        const cell = gridState[row][col];
+        if (cell.groupId === groupId) {
+          totalInGroup++;
+          cellsInGroup.push({row, col});
+          if (cell.isSelected) {
+            selectedInGroup++;
+          }
+        }
+      }
+    }
+    
+    // Group is complete if all cells in the group are selected
+    const isComplete = totalInGroup > 0 && selectedInGroup === totalInGroup;
+    
+    if (isComplete) {
+      console.log(`Group ${groupId} is complete with ${totalInGroup} cells selected`);
+      
+      // Make a deep copy of the grid to work with
+      const newGrid = gridState.map(row => [...row]);
+      
+      // When a group is complete, mark all cells as counted but keep them visually selected
+      cellsInGroup.forEach(({row, col}) => {
+        // Keep the cells visually selected but mark them as counted
+        newGrid[row][col].isCounted = true;
+      });
+      
+      // Update the group box's completion percentage with the collected points
+      updateGroupCompletionAfterCollect(groupId, totalInGroup);
+      
+      // Update the grid to mark the completed group as counted
+      setGrid(newGrid);
+    }
+    
+    return isComplete;
   };
 
   // State to track which groups are assigned to which boxes

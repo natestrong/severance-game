@@ -147,16 +147,29 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
   
   // Handle cell click events - memoized for performance
   const handleCellClick = useCallback((row: number, col: number, isScary: boolean, isRoot: boolean) => {
+    console.log(`Cell clicked: [${row}, ${col}], isScary: ${isScary}, isRoot: ${isRoot}`);
+    
+    // DEBUG: Check if the cell.isRoot flag in the grid matches what we're receiving
+    const cellInGrid = grid[row][col];
+    console.log(`Grid cell state: isScary=${cellInGrid.isScary}, isRoot=${cellInGrid.isRoot}, isRevealed=${cellInGrid.isRevealed}, isSelected=${cellInGrid.isSelected}`);
+    
     if (isScary) {
-      selectScaryNumber(row, col, isRoot);
+      console.log(`This is a scary cell, calling selectScaryNumber`);
+      
+      // Check if the cell is actually a root scary number in the grid
+      const realIsRoot = cellInGrid.isRoot;
+      console.log(`Using grid's isRoot value: ${realIsRoot}`);
+      
+      selectScaryNumber(row, col, realIsRoot);
       
       // Only root scary numbers should reveal neighbors
-      if (isRoot) {
+      if (realIsRoot) {
+        console.log(`This is a ROOT scary cell, calling revealScaryNeighbors`);
         revealScaryNeighbors(row, col);
       }
     }
-  }, [selectScaryNumber, revealScaryNeighbors]);
-  
+  }, [selectScaryNumber, revealScaryNeighbors, grid]);
+
   // Handle mouse events for drag selection
   useEffect(() => {
     const container = gridContainerRef.current;
@@ -180,7 +193,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
       container.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
-  
+
   // Mouse move handler for drag selection
   useEffect(() => {
     if (!isDragging || !gridContainerRef.current) return;
@@ -207,7 +220,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
           const cell = grid[row][col];
           // Only select if it's a scary cell and not already selected
           if (cell && cell.isScary && !cell.isSelected && !cell.isCounted) {
-            handleCellClick(row, col, true, false);
+            handleCellClick(row, col, true, cell.isRoot);
             setLastSelectedCell({ row, col });
           }
         }

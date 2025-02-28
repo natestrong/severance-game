@@ -65,9 +65,9 @@ const generateAnimationParams = (row: number, col: number, isScary: boolean, isR
   const hasJitter = isScary || isRevealed;
   
   return {
-    magnitudeX,
-    magnitudeY,
-    speed: baseSpeed,
+    xMove: magnitudeX,
+    yMove: magnitudeY,
+    rotation: baseSpeed,
     initialPhase,
     directionChanges,
     zoomDuration,
@@ -149,7 +149,7 @@ const Letter: React.FC<LetterProps> = (props) => {
       return;
     }
     
-    const { magnitudeX, magnitudeY, speed, initialPhase, directionChanges } = animationParams;
+    const { xMove, yMove, rotation, initialPhase, directionChanges } = animationParams;
     
     const animate = () => {
       if (!letterRef.current) return;
@@ -175,9 +175,9 @@ const Letter: React.FC<LetterProps> = (props) => {
       }
       
       // Apply current multipliers to base values
-      const currentMagnitudeX = magnitudeX * multipliers.magnitude;
-      const currentMagnitudeY = magnitudeY * multipliers.magnitude;
-      const currentSpeed = speed / multipliers.speed; // Inverted because lower = faster
+      const currentMagnitudeX = xMove * multipliers.magnitude;
+      const currentMagnitudeY = yMove * multipliers.magnitude;
+      const currentSpeed = rotation / multipliers.speed; // Inverted because lower = faster
       
       // Complex wave function for more natural movement
       // Use multiple sine waves with different frequencies and phase shifts
@@ -242,8 +242,14 @@ const Letter: React.FC<LetterProps> = (props) => {
         left: `${col * cellSize}px`,
         width: `${cellSize}px`,
         height: `${cellSize}px`,
+        // Apply jitter transform only if this is a scary or revealed cell that isn't selected
+        transform: shouldApplyJitter
+          ? `translate3d(${animationParams.xMove}px, ${animationParams.yMove}px, 0) rotate(${animationParams.rotation}deg)`
+          : 'none',
+        // Remove debug visuals for different cell states
+        backgroundColor: 'transparent',
+        border: 'none'
       }}
-      key={animationKey}
     >
       <div 
         className="cell-content"
