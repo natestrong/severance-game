@@ -6,7 +6,7 @@
 
 /* Define color variables for consistency */
 :root {
-  --dark-blue: #00284d; /* Same as the header dark blue */
+  --dark-blue: #001f3d; /* Darker version of the previous #00284d */
   --light-blue: #00e6ff; /* Same as the header light blue */
   --medium-blue: #004a77;
 }

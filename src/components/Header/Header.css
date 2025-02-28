@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   padding: 25px;
-  background-color: #00284de6;
+  background-color: #001f3de6;
   color: #00e6ff;
   font-family: monospace;
   height: 100px;
@@ -47,12 +47,12 @@
       to right,
       transparent,
       transparent 16px,
-      #00284de6 16px,
-      #00284de6 24px
+      #001f3de6 16px,
+      #001f3de6 24px
     ),
     linear-gradient(
       to right,
-      rgba(0, 40, 77, 0.8) 20%,
+      rgba(0, 31, 61, 0.8) 20%,
       #00e6ff 90%
     );
   background-size: 100% 100%;
@@ -84,12 +84,12 @@
   right: 100px; 
   
   /* Rectangle background */
-  background-color: #00284d;
+  background-color: #001f3d;
   padding: 2px 40px 2px 12px;
   border-radius: 4px;
   
   /* Text styling */
-  color: #00284d;
+  color: #001f3d;
   -webkit-text-stroke: 1.5px #00e6ff;
   font-weight: bold;
   letter-spacing: 0.5px;
