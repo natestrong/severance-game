@@ -29,7 +29,7 @@
   width: 100%;
   height: 100%;
   will-change: transform;
-  /* Remove transition properties - Framer Motion will handle animations */
+  /* All animations now handled by Framer Motion */
 }
 
 /* Special styling for the center cell */
@@ -57,7 +57,6 @@
   font-size: 1.1em;
   color: var(--text-color);
   background-color: transparent;
-  transition: background-color 0.2s, transform 0.1s, color 0.2s;
   position: absolute;
   user-select: none;
   -webkit-user-select: none;
@@ -67,7 +66,6 @@
 }
 
 .letter.scary {
-  animation: scary-jitter 0.08s infinite ease-in-out;
   color: var(--letter-scary-color);
   cursor: grab; /* Shows the grab cursor to indicate draggable */
 }
@@ -112,36 +110,4 @@
   pointer-events: none; /* Prevent further interaction with counted cells */
 }
 
-/* Apply scaling to selected and counted cells - now handled by Framer Motion */
-.selected-cell .cell-content,
-.counted-cell .cell-content {
-  /* Remove transform scale - now handled by Framer Motion */
-  z-index: 10; /* Ensure the zoomed content appears above other elements */
-}
-
-.selected-cell.scary-cell .cell-content,
-.counted-cell.scary-cell .cell-content {
-  /* Remove transform scale - now handled by Framer Motion */
-}
-
-/* Jitter effect */
-.jitter {
-  display: inline-block;
-  animation: jitter 0.15s infinite;
-  will-change: transform;
-}
-
-@keyframes jitter {
-  0%, 100% {
-    transform: translate3d(0, 0, 0);
-  }
-  25% {
-    transform: translate3d(-2px, 1px, 0);
-  }
-  50% {
-    transform: translate3d(1px, -1px, 0);
-  }
-  75% {
-    transform: translate3d(-1px, -2px, 0);
-  }
-}
+/* Remove the jitter animation since it's now handled by Framer Motion */

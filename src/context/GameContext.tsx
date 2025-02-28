@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 
 type GameLevel = {
   name: string;
@@ -483,11 +483,19 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       // Update the grid to mark the completed group as counted
       setGrid(newGrid);
       
-      // Trigger animations after the state updates
-      setTimeout(() => {
-        console.log("Triggering animations after grid update");
-        triggerCellAnimations(cellsInGroup, groupId);
-      }, 50);
+      // Keep track of the last animation trigger time to prevent double animations
+      const now = Date.now();
+      if (!lastAnimationTrigger.current || (now - lastAnimationTrigger.current) > 300) {
+        lastAnimationTrigger.current = now;
+        
+        // Trigger animations after the state updates
+        setTimeout(() => {
+          console.log("Triggering animations after grid update");
+          triggerCellAnimations(cellsInGroup, groupId);
+        }, 50);
+      } else {
+        console.log("Preventing duplicate animation trigger");
+      }
     }
     
     return isComplete;
@@ -576,6 +584,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     boxId: string;
     potentialContribution: number;
   }>>({});
+
+  // Ref to track the last animation trigger time
+  const lastAnimationTrigger = useRef<number | null>(null);
 
   // Animation state for letters zooming to group boxes
   const [activeAnimations, setActiveAnimations] = useState<AnimationItem[]>([]);
