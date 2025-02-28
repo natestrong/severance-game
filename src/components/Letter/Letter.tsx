@@ -57,6 +57,9 @@ const generateAnimationParams = (row: number, col: number, isScary: boolean, isR
   // Generate random direction changes for more organic movement
   const directionChanges = randomIntInRange(3, 6);
   
+  // Random zoom duration between 0.2 and 0.6 seconds
+  const zoomDuration = randomInRange(0.2, 0.6);
+  
   // Determine if this letter should have the jitter effect (only scary or revealed)
   const hasJitter = isScary || isRevealed;
   
@@ -66,6 +69,7 @@ const generateAnimationParams = (row: number, col: number, isScary: boolean, isR
     speed: baseSpeed,
     initialPhase,
     directionChanges,
+    zoomDuration,
     hasJitter
   };
 };
@@ -123,9 +127,24 @@ const Letter: React.FC<LetterProps> = (props) => {
   const startTime = useRef(Date.now());
   const lastMultiplierUpdate = useRef(Date.now());
   
+  // Apply custom zoom duration when selected
+  useEffect(() => {
+    if (letterRef.current) {
+      // Set the unique zoom duration as a CSS variable
+      letterRef.current.style.setProperty('--zoom-duration', `${animationParams.zoomDuration}s`);
+    }
+  }, [animationParams.zoomDuration]);
+
   // Main animation function using requestAnimationFrame
   useEffect(() => {
-    if (isSelected) return; // Don't animate selected letters
+    // Don't animate selected letters
+    if (isSelected) {
+      if (letterRef.current) {
+        // For selected letters, ensure we reset transform to allow CSS to handle the scaling
+        letterRef.current.style.transform = ''; // Use empty string to let CSS handle it
+      }
+      return;
+    }
     
     const { magnitudeX, magnitudeY, speed, initialPhase, directionChanges } = animationParams;
     
@@ -192,8 +211,9 @@ const Letter: React.FC<LetterProps> = (props) => {
     };
   }, [animationParams, isSelected, multipliers]);
   
-  // Only apply jitter to scary cells that aren't selected
-  const shouldApplyJitter = animationParams.hasJitter && !isSelected;
+  // Apply jitter to scary cells that aren't selected
+  // This includes both original scary cells and revealed scary neighbors
+  const shouldApplyJitter = (isScary || isRevealedScary) && !isSelected;
   
   // Create a unique key using row and col that will persist between renders
   const animationKey = `letter-${row}-${col}`;

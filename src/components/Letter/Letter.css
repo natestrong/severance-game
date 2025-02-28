@@ -1,65 +1,53 @@
 /* Individual letter cells */
 .letter-cell {
-  font-family: monospace;
-  font-size: 32px;
-  cursor: pointer;
   position: absolute;
-  z-index: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: var(--light-blue);
-  background-color: transparent;
-  border: none;
-  overflow: hidden;
-  /* Optimize for performance */
-  will-change: transform;
-  transform: translateZ(0);
+  justify-content: center;
+  font-size: 32px; /* Increased font size for all letters */
+  font-weight: bold;
+  color: var(--light-blue);  /* Restore the blue color for all letters */
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+  contain: layout style; /* Performance optimization */
+  will-change: transform; /* Performance optimization */
+  font-family: 'Courier New', monospace;
   cursor: url('/cursor.png') 0 0, auto; /* Use custom cursor */
   /* Add subtle effect to make number stand out */
   text-shadow: 0 0 2px rgba(100, 200, 255, 0.3);
   padding: 25px; /* Spacing between letters */
-  
-  /* Use contain for better performance - tells browser this element is independent for layout/paint */
-  contain: layout style paint;
 }
 
 /* Inner content container for handling zooms */
-.letter-cell .cell-content {
+.cell-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.4s ease-out;
+  will-change: transform;
+  /* Default duration as fallback */
+  --zoom-duration: 0.4s;
+  /* Use custom bezier curve for bounce effect */
+  transition: transform var(--zoom-duration) cubic-bezier(0.175, 0.885, 0.32, 1.575);
 }
 
 /* Special styling for the center cell */
 .center-cell {
   z-index: 3; /* Put center cell above all others */
+  color: var(--light-blue); /* Keep consistent with other letters */
+  font-weight: bold;
 }
 
 /* Styling for scary cells */
 .scary-cell {
   cursor: url('/cursor.png') 0 0, auto;
-}
-
-/* Styling for selected cells - zoomed in with subtle glow */
-.selected-cell {
-  z-index: 2; /* Ensure selected cells appear above others */
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.4); /* Subtle glow */
-}
-
-.selected-cell.scary-cell {
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Slightly stronger glow */
-}
-
-.selected-cell .cell-content {
-  transform: scale(1.3); /* 30% larger */
-}
-
-.selected-cell.scary-cell .cell-content {
-  transform: scale(1.4); /* 40% larger for scary numbers */
+  /* Keep the same color as regular letters */
+  color: var(--light-blue);
+  font-weight: bold;
 }
 
 /* Styling for revealed neighbor cells */
@@ -68,27 +56,53 @@
   background-color: transparent !important;
   border: none !important; 
   box-shadow: none !important;
+  /* Keep the same color as regular letters */
+  color: var(--light-blue);
+  font-weight: bold;
 }
 
-/* Define jitter animation for scary numbers */
-@keyframes jitter {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  10% { transform: translate3d(-1px, -1px, 0); }
-  20% { transform: translate3d(1px, -1px, 0); }
-  30% { transform: translate3d(-2px, 0px, 0); }
-  40% { transform: translate3d(2px, 0px, 0); }
-  50% { transform: translate3d(-1px, 1px, 0); }
-  60% { transform: translate3d(1px, 1px, 0); }
-  70% { transform: translate3d(-3px, -1px, 0); }
-  80% { transform: translate3d(3px, 1px, 0); }
-  90% { transform: translate3d(-2px, 2px, 0); }
+/* Styling for selected cells - zoomed in with subtle glow */
+.selected-cell {
+  z-index: 2; /* Ensure selected cells appear above others */
+  /* Keep the same color as regular letters but add glow effect */
+  color: var(--light-blue);
+  font-weight: bold;
+  /* Glow effect matching the letter color */
+  text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
 }
 
-/* Class to apply the jitter effect */
+.selected-cell.scary-cell {
+  text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
+}
+
+/* Apply scaling to selected cells */
+.selected-cell .cell-content {
+  transform: scale(2.2); /* 120% larger when selected - increased from 1.8 */
+  z-index: 10; /* Ensure the zoomed content appears above other elements */
+}
+
+.selected-cell.scary-cell .cell-content {
+  transform: scale(2.2); /* 120% larger for scary numbers */
+}
+
+/* Jitter effect */
 .jitter {
-  /* Apply the fast jitter animation */
-  animation: jitter 0.4s infinite steps(10);
-  /* Allow for composition with parent transforms */
   display: inline-block;
+  animation: jitter 0.15s infinite;
   will-change: transform;
+}
+
+@keyframes jitter {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-2px, 1px, 0);
+  }
+  50% {
+    transform: translate3d(1px, -1px, 0);
+  }
+  75% {
+    transform: translate3d(-1px, -2px, 0);
+  }
 }
