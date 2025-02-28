@@ -372,6 +372,12 @@ const Letter: React.FC<LetterProps> = (props) => {
     return null;
   }
   
+  // If the letter is currently animating, don't show it in the grid at all
+  // The animation will be handled by the AnimationContainer component
+  if (isAnimating) {
+    return null; // Don't render anything when animating - let the AnimationContainer handle it
+  }
+  
   return (
     <div 
       className={`
