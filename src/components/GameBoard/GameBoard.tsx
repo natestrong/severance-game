@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { useGameContext } from '../../context/GameContext';
+import Letter from '../Letter/Letter';
 import './GameBoard.css';
 
 interface GameBoardProps {
@@ -140,36 +141,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     console.log(`Visible area: Rows ${visibleArea.startRow}-${visibleArea.endRow}, Cols ${visibleArea.startCol}-${visibleArea.endCol}`);
     console.log(`Rendering ${(visibleArea.endRow - visibleArea.startRow + 1) * (visibleArea.endCol - visibleArea.startCol + 1)} cells`);
   }, [grid, visibleArea]);
-  
-  // Function to generate random shake parameters for a cell - memoized by cell position
-  const generateShakeParams = useCallback((row: number, col: number, isScary: boolean, isRevealed: boolean): { intensity: string, delay: string, hasJitter: boolean } => {
-    // Use deterministic but seemingly random shake intensity based on position
-    const posHash = (row * 17 + col * 31) % 100;
-    
-    // Distribute shake intensities with a bias towards more shake
-    let intensity = '';
-    if (posHash < 10) {
-      intensity = 'shake-microscopic'; // 10% chance of microscopic shake
-    } else if (posHash < 30) {
-      intensity = 'shake-tiny'; // 20% chance of tiny shake
-    } else if (posHash < 60) {
-      intensity = 'shake-small'; // 30% chance of small shake
-    } else if (posHash < 85) {
-      intensity = 'shake-medium'; // 25% chance of medium shake
-    } else {
-      intensity = 'shake-large'; // 15% chance of large shake
-    }
-    
-    // Apply delay based on position to make the shake feel more natural
-    const delayHash = (row * 13 + col * 29) % 20;
-    const delay = `delay-${delayHash}`;
-
-    // Determine if this cell should have the jitter effect
-    // Only scary numbers (original or revealed) have jitter
-    const hasJitter = isScary || isRevealed;
-    
-    return { intensity, delay, hasJitter };
-  }, []);
 
   // Handle cell click events - memoized for performance
   const handleCellClick = useCallback((row: number, col: number, isScary: boolean, isRoot: boolean) => {
@@ -189,54 +160,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     }
   }, [selectScaryNumber, revealScaryNeighbors]);
 
-  // Create a reusable Cell component for better performance
-  const Cell = useCallback(({ row, col, cell }: { row: number, col: number, cell: any }) => {
-    // For cells that are revealed but not selected, we want to give them the scary appearance
-    const isRevealedScary = cell.isRevealed && !cell.isSelected;
-    
-    // Get shake parameters based on whether the cell is scary or revealed
-    const { intensity, delay, hasJitter } = generateShakeParams(row, col, cell.isScary, isRevealedScary);
-    
-    const isCenter = row === centerIndices.row && col === centerIndices.col;
-    
-    // Only apply jitter to scary cells that aren't selected
-    // When selected, keep the normal shake but remove jitter
-    const shouldApplyJitter = hasJitter && !cell.isSelected;
-    
-    return (
-      <div 
-        key={`${row}-${col}`}
-        className={`
-          grid-cell 
-          ${isCenter ? 'center-cell' : ''} 
-          ${intensity} ${delay}
-          ${cell.isScary ? 'scary-cell' : ''}
-          ${cell.isSelected ? 'selected-cell' : ''}
-          ${isRevealedScary ? 'revealed-cell' : ''}
-        `}
-        onClick={() => handleCellClick(row, col, cell.isScary, cell.isRoot)}
-        data-is-scary={cell.isScary}
-        data-is-selected={cell.isSelected}
-        data-is-revealed={cell.isRevealed}
-        data-is-root={cell.isRoot}
-        style={{
-          top: `${row * cellSize}px`,
-          left: `${col * cellSize}px`,
-          width: `${cellSize}px`,
-          height: `${cellSize}px`,
-        }}
-      >
-        <div className="cell-content">
-          {shouldApplyJitter ? (
-            <span className="jitter">{cell.value}</span>
-          ) : (
-            cell.value
-          )}
-        </div>
-      </div>
-    );
-  }, [cellSize, centerIndices, generateShakeParams, handleCellClick]);
-
   // Generate only the visible portion of cells
   const visibleCells = useMemo(() => {
     if (grid.length === 0) return null;
@@ -248,12 +171,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     for (let row = visibleArea.startRow; row <= visibleArea.endRow; row++) {
       for (let col = visibleArea.startCol; col <= visibleArea.endCol; col++) {
         if (row < gridSize && col < gridSize && grid[row] && grid[row][col]) {
+          const cell = grid[row][col];
+          const isCenter = row === centerIndices.row && col === centerIndices.col;
+          
           cells.push(
-            <Cell 
+            <Letter 
               key={`${row}-${col}`}
+              value={cell.value}
               row={row}
               col={col}
-              cell={grid[row][col]}
+              isScary={cell.isScary}
+              isSelected={cell.isSelected}
+              isRevealed={cell.isRevealed}
+              isRoot={cell.isRoot}
+              isCenter={isCenter}
+              cellSize={cellSize}
+              onClick={() => handleCellClick(row, col, cell.isScary, cell.isRoot)}
             />
           );
         }
@@ -264,7 +197,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     console.log(`Cell rendering took ${endTime - startTime}ms`);
     
     return cells;
-  }, [grid, visibleArea, gridSize, Cell]);
+  }, [grid, visibleArea, gridSize, cellSize, centerIndices, handleCellClick]);
 
   return (
     <div className="gameboard">
