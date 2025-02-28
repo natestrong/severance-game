@@ -363,8 +363,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Update a group box's completion percentage
   const updateGroupBox = (id: string, percentage: number) => {
-    setGroupBoxes(prev => 
-      prev.map(box => {
+    setGroupBoxes(prev => {
+      const updatedBoxes = prev.map(box => {
         if (box.id === id) {
           // Cap the percentage at 100% - box can't exceed 100%
           const newPercentage = Math.min(percentage, 100);
@@ -375,16 +375,18 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           };
         }
         return box;
-      })
-    );
-    
-    // Calculate overall completion based on all boxes
-    // Each box represents 20% of the total game, so divide by 5
-    setTimeout(() => {
-      const overallPercentage = 
-        groupBoxes.reduce((total, box) => total + (Math.min(box.completionPercentage, 100) / 5), 0);
-      setCompletionPercentage(Math.min(overallPercentage, 100));
-    }, 0);
+      });
+      
+      // Calculate overall completion based on updated boxes
+      // Each box represents 20% of the total game, so divide by 5
+      setTimeout(() => {
+        const overallPercentage = 
+          updatedBoxes.reduce((total, box) => total + (Math.min(box.completionPercentage, 100) / 5), 0);
+        setCompletionPercentage(Math.min(overallPercentage, 100));
+      }, 0);
+      
+      return updatedBoxes;
+    });
   };
 
   // Update the completion of a group when all letters in the group are selected
