@@ -21,7 +21,7 @@ const Header: React.FC = () => {
           {percentText}
         </span>
         <div className="logo-container">
-          <img src={LumonLogo} alt="Lumon Industries" className="lumon-logo" />
+          <img src={LumonLogo} alt="Lumon Industries" />
         </div>
       </div>
     </header>

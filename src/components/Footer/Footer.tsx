@@ -4,8 +4,7 @@ import GroupBox from '../GroupBox/GroupBox';
 import { useGameContext } from '../../context/GameContext';
 
 const Footer: React.FC = () => {
-  // Get the group boxes data from context instead of using hard-coded values
-  const { groupBoxes } = useGameContext();
+  const { groupBoxes, setCompletionPercentage } = useGameContext();
 
   return (
     <footer className="footer">
@@ -24,6 +23,19 @@ const Footer: React.FC = () => {
         <div className="footer-text">
           0x137056 : 0x08832E
         </div>
+        {/* Hidden test button for forcing completion - can be removed in production */}
+        <button 
+          onClick={() => setCompletionPercentage(100)} 
+          style={{ 
+            position: 'absolute', 
+            right: '10px', 
+            bottom: '10px', 
+            opacity: 0.5,
+            fontSize: '10px'
+          }}
+        >
+          Test Win
+        </button>
       </div>
     </footer>
   );

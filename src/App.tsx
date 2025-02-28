@@ -4,9 +4,12 @@ import Header from './components/Header/Header'
 import GameBoard from './components/GameBoard/GameBoard'
 import Footer from './components/Footer/Footer'
 import AnimationContainer from './components/AnimationContainer/AnimationContainer'
-import { GameProvider } from './context/GameContext'
+import VictoryDialog from './components/VictoryDialog/VictoryDialog'
+import { GameProvider, useGameContext } from './context/GameContext'
 
-function App() {
+// Inner App component that can use the game context
+const AppContent = () => {
+  const { gameComplete, acknowledgeGameComplete } = useGameContext();
   const gameboardContainerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to the middle of the gameboard on component mount
@@ -28,15 +31,26 @@ function App() {
   }, []);
 
   return (
-    <GameProvider>
-      <div className="app-container">
-        <Header />
-        <div className="gameboard-container" ref={gameboardContainerRef}>
-          <GameBoard />
-        </div>
-        <Footer />
-        <AnimationContainer />
+    <div className="app-container">
+      <Header />
+      <div className="gameboard-container" ref={gameboardContainerRef}>
+        <GameBoard />
       </div>
+      <Footer />
+      <AnimationContainer />
+      <VictoryDialog 
+        isVisible={gameComplete} 
+        onClose={acknowledgeGameComplete} 
+      />
+    </div>
+  );
+};
+
+// Main App component that provides the GameContext
+function App() {
+  return (
+    <GameProvider>
+      <AppContent />
     </GameProvider>
   )
 }

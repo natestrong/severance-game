@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 type GameLevel = {
   name: string;
@@ -61,6 +61,9 @@ interface GameContextType {
   activeAnimations: AnimationItem[];
   addAnimation: (animation: AnimationItem) => void;
   removeAnimation: (id: string) => void;
+  
+  gameComplete: boolean;
+  acknowledgeGameComplete: () => void;
 }
 
 // Initial values
@@ -91,7 +94,10 @@ const initialGameContext: GameContextType = {
   
   activeAnimations: [],
   addAnimation: () => {},
-  removeAnimation: () => {}
+  removeAnimation: () => {},
+  
+  gameComplete: false,
+  acknowledgeGameComplete: () => {}
 };
 
 // Create context
@@ -574,6 +580,15 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   // Animation state for letters zooming to group boxes
   const [activeAnimations, setActiveAnimations] = useState<AnimationItem[]>([]);
   
+  // State to track if the game is complete (100% completion)
+  const [gameComplete, setGameComplete] = useState(false);
+  
+  // Function to acknowledge game completion and reset if needed
+  const acknowledgeGameComplete = () => {
+    setGameComplete(false);
+    // Optionally reset the game or perform other actions
+  };
+  
   // Add a new animation
   const addAnimation = (animation: AnimationItem) => {
     console.log(`Adding animation: ${animation.id} from (${animation.startX}, ${animation.startY}) to (${animation.endX}, ${animation.endY})`);
@@ -585,6 +600,14 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     console.log(`Removing animation: ${id}`);
     setActiveAnimations(prev => prev.filter(anim => anim.id !== id));
   };
+
+  // Check if the game is complete (100% completion)
+  useEffect(() => {
+    if (completionPercentage >= 100 && !gameComplete) {
+      console.log("Game complete! Showing victory dialog.");
+      setGameComplete(true);
+    }
+  }, [completionPercentage, gameComplete]);
 
   return (
     <GameContext.Provider
@@ -607,7 +630,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         
         activeAnimations,
         addAnimation,
-        removeAnimation
+        removeAnimation,
+        
+        gameComplete,
+        acknowledgeGameComplete
       }}
     >
       {children}

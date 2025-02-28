@@ -1,0 +1,88 @@
+.victory-dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: none;
+}
+
+.victory-dialog {
+  width: 90%;
+  max-width: 800px;
+  background-color: #001f3d;
+  border: 4px solid #64c8ff;
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: none;
+  color: #64c8ff;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+
+.victory-dialog::before {
+  display: none;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.victory-lumon-logo {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.victory-lumon-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.victory-dialog h2,
+.victory-dialog p:not(.victory-text),
+.praise {
+  display: none;
+}
+
+.victory-text {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #64c8ff;
+  font-weight: normal;
+  letter-spacing: normal;
+  margin: 0;
+  display: block;
+}
+
+.close-x {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.2rem;
+  color: #64c8ff;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Courier New', monospace;
+  font-weight: normal;
+  z-index: 10;
+}
+
+.close-x:hover {
+  color: #8dd5ff;
+}
