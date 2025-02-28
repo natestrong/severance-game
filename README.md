@@ -61,7 +61,10 @@ severence-game/
 │   ├── components/
 │   │   ├── Header/
 │   │   ├── GameBoard/
+│   │   ├── Letter/
 │   │   └── Footer/
+│   ├── context/
+│   │   └── GameContext.tsx
 │   ├── App.tsx
 │   ├── App.css
 │   ├── main.tsx
@@ -69,6 +72,51 @@ severence-game/
 ├── package.json
 └── tsconfig.json
 ```
+
+## Component Architecture
+
+### Letter Component
+
+The Letter component (`/src/components/Letter/Letter.tsx`) is responsible for rendering individual cells on the game board with the following features:
+
+- **Dynamic Animations**: 
+  - Uses requestAnimationFrame for smooth, performance-optimized animations
+  - Each letter has unique, deterministic but seemingly random movement
+  - Random movement parameters are based on the letter's position in the grid
+  - Animation includes slow-changing multipliers for organic movement over time
+
+- **Selection Effects**:
+  - Selected letters zoom with a bounce effect (scale 2.2x)
+  - Each letter has a random zoom duration (0.2-0.6 seconds)
+  - Custom cubic-bezier transition for the bounce effect
+  - Selected cells stop animating and display a glow effect
+
+- **Scary Letter Features**:
+  - Scary letters and revealed neighbors have an additional jitter animation
+  - Jitter is implemented as a fast, high-frequency CSS animation
+  - When selected, jitter stops and the letter grows with a smooth transition
+
+- **Performance Optimizations**:
+  - Uses React.memo with custom comparison to prevent unnecessary re-renders
+  - Hardware-accelerated transforms with will-change property
+  - CSS containment for improved rendering performance
+
+### GameBoard Component
+
+The GameBoard component (`/src/components/GameBoard/GameBoard.tsx`) manages the grid of letters:
+
+- **Virtualization**: Only renders the currently visible letters (plus a buffer zone) for performance
+- **Grid Management**: Interfaces with GameContext to initialize and update the grid state
+- **Interaction Handling**: Processes clicks on letters and triggers appropriate context methods
+- **Responsive Layout**: Handles viewport changes and scrolling to maintain performance
+
+### Game State Management
+
+The GameContext (`/src/context/GameContext.tsx`) manages the game state:
+
+- **Grid State**: Stores the grid of cells with properties like isScary, isSelected, isRevealed
+- **Scary Neighbor Logic**: When a root scary letter is clicked, it reveals 1-20 neighboring letters as scary
+- **Selection Tracking**: Manages which letters are selected and tracks groups of scary letters
 
 ## Game Rules
 
@@ -79,20 +127,20 @@ Below are the game rules that will be progressively implemented, with checkboxes
 - [ ] **Level Completion**: The game completes when the Cold Harbor level reaches 100%
 
 ### Game Board and Scary Numbers
-- [ ] **Game Board**: The board contains numerous numbers, with 1% of them being "scary numbers"
-- [ ] **Identifying Scary Numbers**: Scary numbers will have a more intense jitter compared to the normal slow shake of other numbers
-- [ ] **Number Selection**: Only scary numbers can be clicked and selected; regular numbers will not respond
+- [x] **Game Board**: The board contains numerous numbers, with 1% of them being "scary numbers"
+- [x] **Identifying Scary Numbers**: Scary numbers have a more intense jitter compared to the normal slow shake of other numbers
+- [x] **Number Selection**: Only scary numbers can be clicked and selected; regular numbers will not respond
 
 ### Scary Number Groups and Mechanics
-- [ ] **Group Formation**: When a scary number is clicked, 1-20 neighboring numbers become "scary" as well
-- [ ] **Chain Requirement**: All scary numbers in a group must form an unbroken chain of neighbors from the original selected number
+- [x] **Group Formation**: When a scary number is clicked, 1-20 neighboring numbers become "scary" as well
+- [x] **Chain Requirement**: All scary numbers in a group must form an unbroken chain of neighbors from the original selected number
 - [ ] **Group Completion**: When all numbers in a scary group are selected, they disappear from the board
 
 ### Progress Tracking System
 - [ ] **Group Boxes**: Five Group Boxes at the bottom of the page track completion progress
 - [ ] **Box Contribution**: Each Group Box contributes 20% to the overall level completion
 - [ ] **Scoring**: Each scary number in a completed group is worth one percentage point
-- [ ] **Random Assignment**: Completed scary groups are randomly assigned to an available Group Box
+- [x] **Random Assignment**: Completed scary groups are randomly assigned to an available Group Box
 - [ ] **Box Filling**: Group Boxes are filled up to 100% and then considered complete
 - [ ] **Final Completion**: When all five Group Boxes reach 100%, the level is complete
 
@@ -108,27 +156,49 @@ Below are the game rules that will be progressively implemented, with checkboxes
 ## Implementation Todos
 
 ### Context and State Management
-- [ ] Enhance GameContext to store scary numbers
+- [x] Enhance GameContext to store scary numbers
 - [ ] Add state for tracking the five Group Boxes and their completion percentages 
-- [ ] Create functions for calculating neighbors of a cell
-- [ ] Implement chain detection algorithm to verify connected scary numbers
+- [x] Create functions for calculating neighbors of a cell
+- [x] Implement chain detection algorithm to verify connected scary numbers
 - [ ] Add game completion calculation based on Group Box percentages
 
 ### UI Components
 - [ ] Create Group Boxes component for the bottom of the page
-- [ ] Add click handlers to GameBoard for scary number selection
-- [ ] Implement visual feedback for selected scary numbers
+- [x] Add click handlers to GameBoard for scary number selection
+- [x] Implement visual feedback for selected scary numbers
 - [ ] Add progress tracking UI for overall completion
 - [ ] Create visual effects for completed groups
 
 ### Game Logic
-- [ ] Generate scary numbers (1% of total grid) with distinct jitter
-- [ ] Implement function to reveal neighboring scary numbers (1-20) when one is clicked
-- [ ] Create validation for unbroken chains of scary numbers
+- [x] Generate scary numbers (1% of total grid) with distinct jitter
+- [x] Implement function to reveal neighboring scary numbers (1-20) when one is clicked
+- [x] Create validation for unbroken chains of scary numbers
 - [ ] Implement group completion detection when all connected scary numbers are selected
-- [ ] Develop random assignment of completed groups to available Group Boxes
+- [x] Develop random assignment of completed groups to available Group Boxes
 
 ### Performance and Optimization
-- [ ] Optimize grid rendering for large number of cells
-- [ ] Implement efficient neighbor calculation
-- [ ] Add proper event handling to prevent excessive re-renders
+- [x] Optimize grid rendering for large number of cells
+- [x] Implement efficient neighbor calculation
+- [x] Add proper event handling to prevent excessive re-renders
+
+## Animation System Details
+
+The letter animation system works in two layers:
+
+1. **Base Movement**: 
+   - Each letter has a slow, organic movement using complex wave functions
+   - The movement parameters vary based on the letter's position and seed
+   - Parameters include magnitude (how far it moves), speed, and directionality
+
+2. **Jitter Effect**:
+   - Applied to scary letters and revealed neighbors 
+   - Fast, high-frequency movement superimposed on the base animation
+   - Creates a distinctly "scary" appearance that's easily identifiable
+
+When a letter is selected:
+1. All animations are stopped
+2. The letter scales up with a bounce effect
+3. A glow effect is applied
+4. The position is fixed
+
+This dual-layered animation system creates an immersive and responsive game experience while maintaining performance even with large grids.
