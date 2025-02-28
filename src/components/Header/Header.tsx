@@ -5,7 +5,8 @@ import LumonLogo from '../../assets/Lumon_transparent.png';
 
 const Header: React.FC = () => {
   const { currentLevel, completionPercentage } = useGameContext();
-  const percentText = `${completionPercentage}% Complete`;
+  const roundedPercentage = Math.round(completionPercentage);
+  const percentText = `${roundedPercentage}% Complete`;
 
   return (
     <header className="header">
