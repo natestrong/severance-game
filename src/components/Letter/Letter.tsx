@@ -10,6 +10,7 @@ interface LetterProps {
   isRevealed: boolean;
   isRoot: boolean;
   isCenter: boolean;
+  isCounted?: boolean;
   cellSize: number;
   onClick: () => void;
 }
@@ -84,6 +85,7 @@ const arePropsEqual = (prevProps: LetterProps, nextProps: LetterProps) => {
     prevProps.isRevealed === nextProps.isRevealed &&
     prevProps.isRoot === nextProps.isRoot &&
     prevProps.isCenter === nextProps.isCenter &&
+    prevProps.isCounted === nextProps.isCounted &&
     prevProps.cellSize === nextProps.cellSize
     // We intentionally don't compare onClick to allow parent to reuse the same function
   );
@@ -99,6 +101,7 @@ const Letter: React.FC<LetterProps> = (props) => {
     isRevealed,
     isRoot,
     isCenter,
+    isCounted = false,
     cellSize,
     onClick
   } = props;
@@ -226,12 +229,14 @@ const Letter: React.FC<LetterProps> = (props) => {
         ${isScary ? 'scary-cell' : ''}
         ${isSelected ? 'selected-cell' : ''}
         ${isRevealedScary ? 'revealed-cell' : ''}
+        ${isCounted ? 'counted-cell' : ''}
       `}
       onClick={onClick}
       data-is-scary={isScary}
       data-is-selected={isSelected}
       data-is-revealed={isRevealed}
       data-is-root={isRoot}
+      data-is-counted={isCounted}
       style={{
         top: `${row * cellSize}px`,
         left: `${col * cellSize}px`,

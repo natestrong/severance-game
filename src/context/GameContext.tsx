@@ -22,6 +22,7 @@ type GridCell = {
   isRevealed: boolean; // True if this cell is part of a revealed group
   isRoot: boolean; // True if this is a root scary number
   groupId: string | null; // ID of the group this cell belongs to (if any)
+  isCounted: boolean; // True if this cell has already been counted towards completion
 };
 
 interface GameContextType {
@@ -132,7 +133,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           isSelected: false,
           isRevealed: false,
           isRoot: false,   // New property to distinguish root scary numbers
-          groupId: null
+          groupId: null,
+          isCounted: false // Initialize as not counted
         });
       }
       newGrid.push(row);
@@ -227,18 +229,82 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     console.log(`Selecting scary number at [${row}, ${col}]`);
     if (!grid[row][col].isScary) return;
     
+    // Don't do anything if the cell is already counted
+    if (grid[row][col].isCounted) {
+      console.log(`Cell at [${row}, ${col}] is already counted, ignoring click`);
+      return;
+    }
+    
     // Create a DEEP copy of the grid
     const newGrid = grid.map(row => [...row]);
     newGrid[row][col].isSelected = true;
     
     // If the cell is part of a group, update the group's completion
     if (newGrid[row][col].groupId) {
-      updateGroupCompletion(newGrid[row][col].groupId);
+      const groupId = newGrid[row][col].groupId;
+      
+      // Check if the group is now complete
+      const isComplete = checkAndHandleGroupCompletion(newGrid, groupId);
+      
+      if (!isComplete) {
+        // Just update the grid with the new selected state if group is not complete
+        setGrid(newGrid);
+        console.log(`Updated grid with selected cell at [${row}, ${col}]`);
+      }
+    } else {
+      // Use functional update to ensure we're working with the latest state
+      setGrid(newGrid);
+      console.log(`Updated grid with selected cell at [${row}, ${col}]`);
+    }
+  };
+
+  // Check if a group is complete and handle it if it is
+  const checkAndHandleGroupCompletion = (gridState: GridCell[][], groupId: string | null) => {
+    if (!groupId) return false;
+    
+    // Count total cells in group and selected cells in group
+    let totalInGroup = 0;
+    let selectedInGroup = 0;
+    
+    // Find all cells in this group
+    const cellsInGroup: {row: number, col: number}[] = [];
+    
+    for (let row = 0; row < gridState.length; row++) {
+      for (let col = 0; col < gridState[row].length; col++) {
+        const cell = gridState[row][col];
+        if (cell.groupId === groupId) {
+          totalInGroup++;
+          cellsInGroup.push({row, col});
+          if (cell.isSelected) {
+            selectedInGroup++;
+          }
+        }
+      }
     }
     
-    // Use functional update to ensure we're working with the latest state
-    setGrid(newGrid);
-    console.log(`Updated grid with selected cell at [${row}, ${col}]`);
+    // Group is complete if all cells in the group are selected
+    const isComplete = totalInGroup > 0 && selectedInGroup === totalInGroup;
+    
+    if (isComplete) {
+      console.log(`Group ${groupId} is complete with ${totalInGroup} cells selected`);
+      
+      // Make a deep copy of the grid to work with
+      const newGrid = gridState.map(row => [...row]);
+      
+      // When a group is complete, mark all cells as counted but keep them visually selected
+      cellsInGroup.forEach(({row, col}) => {
+        // Keep the cells visually selected but mark them as counted
+        newGrid[row][col].isCounted = true;
+      });
+      
+      // Update the group box's completion percentage with the collected points
+      updateGroupCompletionAfterCollect(groupId, totalInGroup);
+      
+      // Update the grid to mark the completed group as counted
+      setGrid(newGrid);
+    }
+    
+    return isComplete;
   };
 
   // Check if a group is complete (all scary cells selected)
@@ -265,16 +331,21 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Assign a new chain of scary numbers to the group box with the least completion
   const assignGroupToBox = (groupId: string) => {
-    // Find the group box with the lowest completion percentage
-    let lowestCompletionBox = groupBoxes[0];
+    // Find the group box with the lowest completion percentage that's not already full
+    let availableBoxes = groupBoxes.filter(box => box.completionPercentage < 100);
     
-    for (const box of groupBoxes) {
-      if (box.completionPercentage < lowestCompletionBox.completionPercentage) {
-        lowestCompletionBox = box;
-      }
+    // If all boxes are full (100%), nothing to do
+    if (availableBoxes.length === 0) {
+      console.log('All group boxes are already at 100%, cannot assign new groups');
+      return;
     }
     
-    // Count cells in this new group
+    // Get the box with the lowest completion percentage
+    let lowestCompletionBox = availableBoxes.reduce((prev, current) => 
+      prev.completionPercentage <= current.completionPercentage ? prev : current
+    );
+    
+    // Count cells in this new group (each one will be worth one percentage point)
     let cellsInNewGroup = 0;
     for (let row = 0; row < grid.length; row++) {
       for (let col = 0; col < grid[row].length; col++) {
@@ -284,47 +355,66 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       }
     }
     
-    // Update the group box's completion percentage based on the total scary cells
-    // Each group box represents 20% of the game, and each scary cell contributes equally
-    const totalScaryCells = Math.floor(gridSize * gridSize * 0.01); // 1% of cells are scary
-    const scaryCellsPerGroup = totalScaryCells / 5; // 5 groups
-    
-    // Initialize the group's contribution to the box
-    // The full contribution will be realized when all cells in the group are selected
-    const potentialContribution = (cellsInNewGroup / scaryCellsPerGroup) * 100;
+    console.log(`Assigning group ${groupId} with ${cellsInNewGroup} cells to box ${lowestCompletionBox.id}`);
     
     // Store the groupId association with the box ID for future reference
-    // We'll use a simple data structure in state to track this
     setGroupAssignments(prev => ({
       ...prev,
       [groupId]: {
         boxId: lowestCompletionBox.id,
-        potentialContribution
+        potentialContribution: cellsInNewGroup  // Each cell is worth 1 percentage point
       }
     }));
+    
+    console.log(`Group ${groupId} assigned to box ${lowestCompletionBox.id}`);
   };
 
-  // Update the completion of a group when a scary cell is selected
-  const updateGroupCompletion = (groupId: string) => {
+  // Update a group box's completion percentage
+  const updateGroupBox = (id: string, percentage: number) => {
+    setGroupBoxes(prev => 
+      prev.map(box => {
+        if (box.id === id) {
+          // Cap the percentage at 100% - box can't exceed 100%
+          const newPercentage = Math.min(percentage, 100);
+          return {
+            ...box,
+            completionPercentage: newPercentage,
+            isComplete: newPercentage >= 100
+          };
+        }
+        return box;
+      })
+    );
+    
+    // Calculate overall completion based on all boxes
+    // Each box represents 20% of the total game, so divide by 5
+    setTimeout(() => {
+      const overallPercentage = 
+        groupBoxes.reduce((total, box) => total + (Math.min(box.completionPercentage, 100) / 5), 0);
+      setCompletionPercentage(Math.min(overallPercentage, 100));
+    }, 0);
+  };
+
+  // Update the completion of a group when all letters in the group are selected
+  const updateGroupCompletionAfterCollect = (groupId: string, numberOfPoints: number) => {
     // Get the group assignment info
     const assignment = groupAssignments[groupId];
     if (!assignment) return;
     
-    // Check if the group is now complete
-    const isComplete = isGroupComplete(groupId);
+    // Find the box
+    const box = groupBoxes.find(box => box.id === assignment.boxId);
     
-    // If the group is complete, add its contribution to the box
-    if (isComplete) {
-      // Find the box
-      const box = groupBoxes.find(box => box.id === assignment.boxId);
+    // Only update if the box exists and it's not already at 100%
+    if (box && box.completionPercentage < 100) {
+      // Each letter in the group is worth TWO points now (double speed)
+      const pointsToAdd = numberOfPoints * 2;
+      console.log(`Adding ${pointsToAdd} points (${numberOfPoints} letters × 2) to box ${box.id}`);
       
-      // Only update if the box exists
-      if (box) {
-        updateGroupBox(
-          assignment.boxId, 
-          box.completionPercentage + assignment.potentialContribution
-        );
-      }
+      // If the box is already close to 100%, we cap it at 100%
+      updateGroupBox(
+        assignment.boxId, 
+        Math.min(100, box.completionPercentage + pointsToAdd)
+      );
     }
   };
 
@@ -333,22 +423,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     boxId: string;
     potentialContribution: number;
   }>>({});
-
-  // Update a group box's completion percentage
-  const updateGroupBox = (id: string, percentage: number) => {
-    setGroupBoxes(prev => 
-      prev.map(box => 
-        box.id === id 
-          ? { ...box, completionPercentage: percentage, isComplete: percentage >= 100 } 
-          : box
-      )
-    );
-    
-    // Calculate overall completion based on all boxes
-    const overallPercentage = 
-      groupBoxes.reduce((total, box) => total + (box.completionPercentage / 5), 0);
-    setCompletionPercentage(Math.min(overallPercentage, 100));
-  };
 
   return (
     <GameContext.Provider

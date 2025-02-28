@@ -75,13 +75,25 @@
   text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
 }
 
-/* Apply scaling to selected cells */
-.selected-cell .cell-content {
+/* Styling for counted cells - maintain selected appearance but with subtle difference */
+.counted-cell {
+  z-index: 2; /* Same z-index as selected cells */
+  color: var(--light-blue);
+  font-weight: bold;
+  /* Same glow as selected but with slightly different color to indicate counted state */
+  text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
+  pointer-events: none; /* Prevent further interaction with counted cells */
+}
+
+/* Apply scaling to selected and counted cells */
+.selected-cell .cell-content,
+.counted-cell .cell-content {
   transform: scale(2.2); /* 120% larger when selected - increased from 1.8 */
   z-index: 10; /* Ensure the zoomed content appears above other elements */
 }
 
-.selected-cell.scary-cell .cell-content {
+.selected-cell.scary-cell .cell-content,
+.counted-cell.scary-cell .cell-content {
   transform: scale(2.2); /* 120% larger for scary numbers */
 }
 

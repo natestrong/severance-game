@@ -139,7 +139,7 @@ Below are the game rules that will be progressively implemented, with checkboxes
 ### Progress Tracking System
 - [ ] **Group Boxes**: Five Group Boxes at the bottom of the page track completion progress
 - [ ] **Box Contribution**: Each Group Box contributes 20% to the overall level completion
-- [ ] **Scoring**: Each scary number in a completed group is worth one percentage point
+- [ ] **Scoring**: Each scary number in a completed group is worth two percentage points
 - [x] **Random Assignment**: Completed scary groups are randomly assigned to an available Group Box
 - [ ] **Box Filling**: Group Boxes are filled up to 100% and then considered complete
 - [ ] **Final Completion**: When all five Group Boxes reach 100%, the level is complete
