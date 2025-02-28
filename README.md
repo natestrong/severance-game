@@ -164,6 +164,24 @@ Below are the game rules that will be progressively implemented, with checkboxes
 - Group Completion: Track and handle group completion
 - Visual Feedback: Clear distinction between selected, scary, and counted cells
 - Text Selection Disabled: Text selection is disabled during drag operations to prevent accidental text selection
+- Dynamic Scary Number Chains: When a root scary number is clicked, a random "snake-like" chain of 1-20 additional scary numbers is revealed
+
+## Scary Number Mechanics
+
+The game features an innovative approach to revealing scary numbers:
+
+1. **Initial Distribution**: 1% of grid cells are randomly initialized as "root" scary numbers
+2. **Dynamic Chain Generation**: When a root scary number is clicked, it reveals a chain of additional scary numbers
+3. **Snake-like Pattern**: The chain forms a connected "snake-like" path from the root number
+4. **Random Growth**: Each new scary number in the chain is:
+   - Connected to at least one previously revealed scary number
+   - Randomly selected from valid neighbors
+   - Part of an unbroken chain leading back to the root
+5. **Variable Chain Length**: Each chain randomly consists of 1-20 additional scary numbers
+6. **Group Assignment**: Each chain is assigned to a group box for progress tracking
+7. **Visual Distinction**: Scary numbers have a subtle jitter animation but otherwise look like normal numbers
+
+This approach creates unpredictable, unique patterns each time a root scary number is clicked, enhancing gameplay variety and strategic depth.
 
 ## Animation System Details
 
