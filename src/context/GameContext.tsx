@@ -615,8 +615,13 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   // Check if the game is complete (100% completion)
   useEffect(() => {
     if (completionPercentage >= 100 && !gameComplete) {
-      console.log("Game complete! Showing victory dialog.");
-      setGameComplete(true);
+      console.log("Game complete! Showing victory dialog after a 2-second delay.");
+      // Wait 2 seconds before showing the victory dialog
+      const timer = setTimeout(() => {
+        setGameComplete(true);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
     }
   }, [completionPercentage, gameComplete]);
 
