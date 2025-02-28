@@ -49,16 +49,16 @@ interface GameContextType {
 
 // Initial values
 const initialGroupBoxes: GroupBox[] = [
-  { id: 'box1', number: '01', completionPercentage: 0, isComplete: false },
-  { id: 'box2', number: '02', completionPercentage: 0, isComplete: false },
-  { id: 'box3', number: '03', completionPercentage: 0, isComplete: false },
-  { id: 'box4', number: '04', completionPercentage: 0, isComplete: false },
-  { id: 'box5', number: '05', completionPercentage: 0, isComplete: false },
+  { id: 'box1', number: '01', completionPercentage: 77, isComplete: false },
+  { id: 'box2', number: '02', completionPercentage: 70, isComplete: false },
+  { id: 'box3', number: '03', completionPercentage: 59, isComplete: false },
+  { id: 'box4', number: '04', completionPercentage: 52, isComplete: false },
+  { id: 'box5', number: '05', completionPercentage: 75, isComplete: false },
 ];
 
 const initialGameContext: GameContextType = {
   currentLevel: { name: 'Cold Harbor', id: 'cold-harbor' },
-  completionPercentage: 0, // Start at 0% instead of 67%
+  completionPercentage: 67, 
   setCurrentLevel: () => {},
   setCompletionPercentage: () => {},
   
@@ -87,7 +87,7 @@ interface GameProviderProps {
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [currentLevel, setCurrentLevel] = useState<GameLevel>(initialGameContext.currentLevel);
-  const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+  const [completionPercentage, setCompletionPercentage] = useState<number>(67);
   const [groupBoxes, setGroupBoxes] = useState<GroupBox[]>(initialGroupBoxes);
   const [grid, setGrid] = useState<GridCell[][]>([]);
   const [gridSize, setGridSize] = useState<number>(100);
