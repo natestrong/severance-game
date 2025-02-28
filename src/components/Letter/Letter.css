@@ -29,10 +29,7 @@
   width: 100%;
   height: 100%;
   will-change: transform;
-  /* Default duration as fallback */
-  --zoom-duration: 0.4s;
-  /* Use custom bezier curve for bounce effect */
-  transition: transform var(--zoom-duration) cubic-bezier(0.175, 0.885, 0.32, 1.575);
+  /* Remove transition properties - Framer Motion will handle animations */
 }
 
 /* Special styling for the center cell */
@@ -115,16 +112,16 @@
   pointer-events: none; /* Prevent further interaction with counted cells */
 }
 
-/* Apply scaling to selected and counted cells */
+/* Apply scaling to selected and counted cells - now handled by Framer Motion */
 .selected-cell .cell-content,
 .counted-cell .cell-content {
-  transform: scale(2.2); /* 120% larger when selected - increased from 1.8 */
+  /* Remove transform scale - now handled by Framer Motion */
   z-index: 10; /* Ensure the zoomed content appears above other elements */
 }
 
 .selected-cell.scary-cell .cell-content,
 .counted-cell.scary-cell .cell-content {
-  transform: scale(2.2); /* 120% larger for scary numbers */
+  /* Remove transform scale - now handled by Framer Motion */
 }
 
 /* Jitter effect */

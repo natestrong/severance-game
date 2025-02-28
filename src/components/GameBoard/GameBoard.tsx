@@ -254,6 +254,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
               isRevealed={cell.isRevealed}
               isRoot={cell.isRoot}
               isCounted={cell.isCounted}
+              isAnimating={cell.isAnimating}
               isCenter={isCenter}
               cellSize={cellSize}
               onClick={() => handleCellClick(row, col, cell.isScary, cell.isRoot)}

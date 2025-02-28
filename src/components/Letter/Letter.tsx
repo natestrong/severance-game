@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Letter.css';
 
 interface LetterProps {
@@ -11,6 +12,7 @@ interface LetterProps {
   isRoot: boolean;
   isCenter: boolean;
   isCounted?: boolean;
+  isAnimating?: boolean;
   cellSize: number;
   onClick: () => void;
 }
@@ -77,15 +79,17 @@ const generateAnimationParams = (row: number, col: number, isScary: boolean, isR
 
 // Use custom comparison function to prevent unnecessary re-renders
 const arePropsEqual = (prevProps: LetterProps, nextProps: LetterProps) => {
-  // Only re-render if these specific props change
   return (
     prevProps.value === nextProps.value &&
+    prevProps.row === nextProps.row &&
+    prevProps.col === nextProps.col &&
     prevProps.isScary === nextProps.isScary &&
     prevProps.isSelected === nextProps.isSelected &&
     prevProps.isRevealed === nextProps.isRevealed &&
     prevProps.isRoot === nextProps.isRoot &&
     prevProps.isCenter === nextProps.isCenter &&
     prevProps.isCounted === nextProps.isCounted &&
+    prevProps.isAnimating === nextProps.isAnimating &&
     prevProps.cellSize === nextProps.cellSize
     // We intentionally don't compare onClick to allow parent to reuse the same function
   );
@@ -102,6 +106,7 @@ const Letter: React.FC<LetterProps> = (props) => {
     isRoot,
     isCenter,
     isCounted = false,
+    isAnimating = false,
     cellSize,
     onClick
   } = props;
@@ -140,11 +145,11 @@ const Letter: React.FC<LetterProps> = (props) => {
 
   // Main animation function using requestAnimationFrame
   useEffect(() => {
-    // Don't animate selected letters
+    // Don't animate selected letters with requestAnimationFrame, Framer Motion will handle that
     if (isSelected) {
       if (letterRef.current) {
-        // For selected letters, ensure we reset transform to allow CSS to handle the scaling
-        letterRef.current.style.transform = ''; // Use empty string to let CSS handle it
+        // For selected letters, ensure we reset transform to allow Framer Motion to handle the animation
+        letterRef.current.style.transform = ''; 
       }
       return;
     }
@@ -221,6 +226,48 @@ const Letter: React.FC<LetterProps> = (props) => {
   // Create a unique key using row and col that will persist between renders
   const animationKey = `letter-${row}-${col}`;
   
+  // Use this same key as the element ID for DOM targeting
+  const elementId = `letter-cell-${row}-${col}`;
+
+  // Framer Motion animation variants
+  const letterVariants = {
+    normal: { 
+      scale: 1,
+      opacity: 1
+    },
+    selected: { 
+      scale: 2.2, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+        duration: animationParams.zoomDuration,
+      }
+    },
+    exit: {
+      scale: 0,
+      opacity: 0,
+      transition: {
+        duration: 0.2
+      }
+    },
+    animating: {
+      scale: 0,
+      opacity: 0,
+      transition: {
+        duration: 0.1
+      }
+    }
+  };
+
+  // Determine the current animation state
+  const animationState = isAnimating 
+    ? 'animating' 
+    : isSelected || isCounted 
+      ? 'selected' 
+      : 'normal';
+  
   return (
     <div 
       className={`
@@ -231,6 +278,9 @@ const Letter: React.FC<LetterProps> = (props) => {
         ${isRevealedScary ? 'revealed-cell' : ''}
         ${isCounted ? 'counted-cell' : ''}
       `}
+      id={elementId}
+      data-row={row}
+      data-col={col}
       onClick={onClick}
       data-is-scary={isScary}
       data-is-selected={isSelected}
@@ -251,16 +301,24 @@ const Letter: React.FC<LetterProps> = (props) => {
         border: 'none'
       }}
     >
-      <div 
-        className="cell-content"
-        ref={letterRef}
-      >
-        {shouldApplyJitter ? (
-          <span className="jitter">{value}</span>
-        ) : (
-          value
-        )}
-      </div>
+      <AnimatePresence>
+        <motion.div 
+          className="cell-content"
+          ref={letterRef}
+          key={animationKey}
+          initial="normal"
+          animate={animationState}
+          exit="exit"
+          variants={letterVariants}
+          layout
+        >
+          {shouldApplyJitter ? (
+            <span className="jitter">{value}</span>
+          ) : (
+            value
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

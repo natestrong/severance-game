@@ -23,6 +23,17 @@ type GridCell = {
   isRoot: boolean; // True if this is a root scary number
   groupId: string | null; // ID of the group this cell belongs to (if any)
   isCounted: boolean; // True if this cell has already been counted towards completion
+  isAnimating?: boolean; // New property to track if this cell is being animated
+};
+
+type AnimationItem = {
+  id: string;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  value: string;
+  onComplete?: () => void;  // Optional callback when animation completes
 };
 
 interface GameContextType {
@@ -45,6 +56,11 @@ interface GameContextType {
   
   // Game state management
   initializeGrid: (size: number) => void;
+  
+  // Animation state for scary numbers
+  activeAnimations: AnimationItem[];
+  addAnimation: (animation: AnimationItem) => void;
+  removeAnimation: (id: string) => void;
 }
 
 // Initial values
@@ -72,6 +88,10 @@ const initialGameContext: GameContextType = {
   isGroupComplete: () => false,
   
   initializeGrid: () => {},
+  
+  activeAnimations: [],
+  addAnimation: () => {},
+  removeAnimation: () => {}
 };
 
 // Create context
@@ -421,14 +441,14 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     let selectedInGroup = 0;
     
     // Find all cells in this group
-    const cellsInGroup: {row: number, col: number}[] = [];
+    const cellsInGroup: {row: number, col: number, value: number}[] = [];
     
     for (let row = 0; row < gridState.length; row++) {
       for (let col = 0; col < gridState[row].length; col++) {
         const cell = gridState[row][col];
         if (cell.groupId === groupId) {
           totalInGroup++;
-          cellsInGroup.push({row, col});
+          cellsInGroup.push({row, col, value: cell.value});
           if (cell.isSelected) {
             selectedInGroup++;
           }
@@ -456,9 +476,93 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       
       // Update the grid to mark the completed group as counted
       setGrid(newGrid);
+      
+      // Trigger animations after the state updates
+      setTimeout(() => {
+        console.log("Triggering animations after grid update");
+        triggerCellAnimations(cellsInGroup, groupId);
+      }, 50);
     }
     
     return isComplete;
+  };
+  
+  // Function to trigger animations for cells in a completed group
+  const triggerCellAnimations = (
+    cells: {row: number, col: number, value: number}[],
+    groupId: string
+  ) => {
+    // Get the target group box for animations
+    const assignment = groupAssignments[groupId];
+    if (!assignment) {
+      console.log(`No assignment found for group ${groupId}`);
+      return;
+    }
+    
+    const targetBoxId = assignment.boxId;
+    const targetBox = groupBoxes.find(box => box.id === targetBoxId);
+    
+    if (!targetBox) {
+      console.log(`No box found with id ${targetBoxId}`);
+      return;
+    }
+    
+    console.log(`Setting up animations for group ${groupId} to box ${targetBox.id}`);
+    
+    // Get the target box element position
+    const boxElement = document.getElementById(`group-box-${targetBox.id}`);
+    if (!boxElement) {
+      console.log(`Could not find group box element: group-box-${targetBox.id}`);
+      return;
+    }
+    
+    console.log(`Found group box element: group-box-${targetBox.id}`);
+    const boxRect = boxElement.getBoundingClientRect();
+    const targetX = boxRect.left + (boxRect.width / 2);
+    const targetY = boxRect.top + (boxRect.height / 2);
+    console.log(`Box position: x=${targetX}, y=${targetY}`);
+    
+    // Mark the cells as animating (to hide them in the grid)
+    const updatedGrid = [...grid];
+    cells.forEach(cell => {
+      updatedGrid[cell.row][cell.col].isAnimating = true;
+    });
+    setGrid(updatedGrid);
+    
+    // Create an animation for each cell in the group
+    cells.forEach((cell, index) => {
+      // Get the starting position for this cell
+      const cellId = `letter-cell-${cell.row}-${cell.col}`;
+      console.log(`Looking for letter element: ${cellId}`);
+      const cellElement = document.getElementById(cellId);
+      if (!cellElement) {
+        console.log(`Could not find letter element: ${cellId}`);
+        return;
+      }
+      
+      console.log(`Found letter element: ${cellId}`);
+      const cellRect = cellElement.getBoundingClientRect();
+      const startX = cellRect.left + (cellRect.width / 2);
+      const startY = cellRect.top + (cellRect.height / 2);
+      console.log(`Letter position: x=${startX}, y=${startY}`);
+      
+      // Add a new animation with a slight delay between each letter
+      const animId = `anim-${groupId}-${cell.row}-${cell.col}`;
+      setTimeout(() => {
+        console.log(`Creating animation: ${animId} with value ${cell.value}`);
+        addAnimation({
+          id: animId,
+          startX,
+          startY,
+          endX: targetX,
+          endY: targetY,
+          value: cell.value.toString(),
+          onComplete: () => {
+            console.log(`Animation ${animId} completed`);
+          }
+        });
+      }, index * 50); // Stagger the animations by 50ms
+    });
   };
 
   // State to track which groups are assigned to which boxes
@@ -466,6 +570,21 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     boxId: string;
     potentialContribution: number;
   }>>({});
+
+  // Animation state for letters zooming to group boxes
+  const [activeAnimations, setActiveAnimations] = useState<AnimationItem[]>([]);
+  
+  // Add a new animation
+  const addAnimation = (animation: AnimationItem) => {
+    console.log(`Adding animation: ${animation.id} from (${animation.startX}, ${animation.startY}) to (${animation.endX}, ${animation.endY})`);
+    setActiveAnimations(prev => [...prev, animation]);
+  };
+  
+  // Remove an animation by id
+  const removeAnimation = (id: string) => {
+    console.log(`Removing animation: ${id}`);
+    setActiveAnimations(prev => prev.filter(anim => anim.id !== id));
+  };
 
   return (
     <GameContext.Provider
@@ -484,7 +603,11 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         selectScaryNumber,
         isGroupComplete,
         
-        initializeGrid
+        initializeGrid,
+        
+        activeAnimations,
+        addAnimation,
+        removeAnimation
       }}
     >
       {children}

@@ -4,15 +4,16 @@ import './GroupBox.css';
 interface GroupBoxProps {
   boxNumber: string;
   progress: number;
+  id: string;
 }
 
 /**
  * GroupBox component that displays a numbered box with a progress bar.
  * Each box represents 20% of the overall game completion.
  */
-const GroupBox: React.FC<GroupBoxProps> = ({ boxNumber, progress }) => {
+const GroupBox: React.FC<GroupBoxProps> = ({ boxNumber, progress, id }) => {
   return (
-    <div className="number-container">
+    <div className="number-container" id={`group-box-${id}`}>
       <div className="number-box">{boxNumber}</div>
       <div className="progress-container">
         <div 

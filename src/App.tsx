@@ -3,6 +3,7 @@ import './App.css'
 import Header from './components/Header/Header'
 import GameBoard from './components/GameBoard/GameBoard'
 import Footer from './components/Footer/Footer'
+import AnimationContainer from './components/AnimationContainer/AnimationContainer'
 import { GameProvider } from './context/GameContext'
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <GameBoard />
         </div>
         <Footer />
+        <AnimationContainer />
       </div>
     </GameProvider>
   )

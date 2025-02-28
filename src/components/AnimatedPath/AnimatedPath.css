@@ -1,0 +1,33 @@
+.animated-path-container {
+  position: fixed;
+  z-index: 1000; /* Ensure it appears above all other elements */
+  pointer-events: none; /* Allow clicks to pass through */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+}
+
+.animated-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--light-blue);
+  text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
+  font-family: 'Courier New', monospace;
+  will-change: transform;
+}
+
+/* Add a slight glow effect as it moves */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(100, 200, 255, 0.6), 0 0 10px rgba(100, 200, 255, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(100, 200, 255, 0.8), 0 0 15px rgba(100, 200, 255, 0.6);
+  }
+}
+
+.animated-value {
+  animation: glow 1.5s infinite ease-in-out;
+}

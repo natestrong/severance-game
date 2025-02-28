@@ -16,6 +16,7 @@ const Footer: React.FC = () => {
               key={box.id}
               boxNumber={box.number}
               progress={box.completionPercentage}
+              id={box.id}
             />
           ))}
         </div>
