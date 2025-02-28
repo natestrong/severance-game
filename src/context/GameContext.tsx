@@ -197,7 +197,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     console.log(`Marked clicked cell [${row}, ${col}] as selected, isScary: ${newGrid[row][col].isScary}`);
     
     // Determine how many scary neighbors to create (between 1 and 20)
-    const numToCreate = Math.max(1, Math.floor(Math.random() * 20) + 1);
+    // Using a weighted distribution that favors lower numbers
+    // Math.pow(Math.random(), 2) creates a distribution that favors values closer to 0
+    const numToCreate = Math.max(1, Math.floor(Math.pow(Math.random(), 2) * 20) + 1);
     console.log(`Will create ${numToCreate} scary neighbors in a snake-like chain`);
     
     // Keep track of all cells in the chain (starting with the root cell)
@@ -245,7 +247,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     
     console.log(`Created ${newlyCreatedScary.length} new scary cells in a snake-like chain`);
     
-    // Assign this new chain to a group box with the least completion
+    // Assign this new chain to a random group box that's not already full
     assignGroupToBox(groupId);
     
     // Update the grid with our changes
@@ -320,9 +322,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     return totalInGroup > 0 && selectedInGroup === totalInGroup;
   };
 
-  // Assign a new chain of scary numbers to the group box with the least completion
+  // Assign a new chain of scary numbers to a random group box that's not already full
   const assignGroupToBox = (groupId: string) => {
-    // Find the group box with the lowest completion percentage that's not already full
+    // Find all group boxes that are not already full
     let availableBoxes = groupBoxes.filter(box => box.completionPercentage < 100);
     
     // If all boxes are full (100%), nothing to do
@@ -331,10 +333,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       return;
     }
     
-    // Get the box with the lowest completion percentage
-    let lowestCompletionBox = availableBoxes.reduce((prev, current) => 
-      prev.completionPercentage <= current.completionPercentage ? prev : current
-    );
+    // Randomly select one of the available boxes
+    const randomIndex = Math.floor(Math.random() * availableBoxes.length);
+    const selectedBox = availableBoxes[randomIndex];
     
     // Count cells in this new group (each one will be worth one percentage point)
     let cellsInNewGroup = 0;
@@ -346,18 +347,18 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       }
     }
     
-    console.log(`Assigning group ${groupId} with ${cellsInNewGroup} cells to box ${lowestCompletionBox.id}`);
+    console.log(`Assigning group ${groupId} with ${cellsInNewGroup} cells to box ${selectedBox.id}`);
     
     // Store the groupId association with the box ID for future reference
     setGroupAssignments(prev => ({
       ...prev,
       [groupId]: {
-        boxId: lowestCompletionBox.id,
+        boxId: selectedBox.id,
         potentialContribution: cellsInNewGroup  // Each cell is worth 1 percentage point
       }
     }));
     
-    console.log(`Group ${groupId} assigned to box ${lowestCompletionBox.id}`);
+    console.log(`Group ${groupId} assigned to box ${selectedBox.id}`);
   };
 
   // Update a group box's completion percentage
