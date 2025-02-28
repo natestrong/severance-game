@@ -18,6 +18,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
   } = useGameContext();
   
   const gridContainerRef = useRef<HTMLDivElement>(null);
+  // Animation frame ID for cleanup of auto-scrolling
+  const autoScrollAnimationId = useRef<number | null>(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  // Auto-scroll settings
+  const EDGE_THRESHOLD = 200; // Distance from edge that triggers auto-scroll (in pixels)
+  const MAX_SCROLL_SPEED = 35; // Maximum scroll speed in pixels per frame
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // Flag to track if mouse has moved at least once
+  const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const [visibleArea, setVisibleArea] = useState({
     startRow: 0,
     endRow: 0,
@@ -89,6 +98,27 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     // Use passive event listener for better scroll performance
     container.addEventListener('scroll', updateVisibleArea, { passive: true });
     
+    // Mouse move handler for auto-scrolling
+    const handleMouseMove = (e: MouseEvent) => {
+      // Get container bounds
+      const rect = container.getBoundingClientRect();
+      
+      // Calculate mouse position relative to the container
+      const relativeX = e.clientX - rect.left;
+      const relativeY = e.clientY - rect.top;
+      
+      // Update mouse position
+      setMousePosition({ x: relativeX, y: relativeY });
+      
+      // Set flag that mouse has moved at least once
+      if (!hasMouseMoved) {
+        setHasMouseMoved(true);
+      }
+    };
+    
+    // Add mouse move listener
+    container.addEventListener('mousemove', handleMouseMove);
+    
     // Scroll to the middle of the grid initially
     const scrollToMiddle = () => {
       const totalWidth = gridDimensions.width;
@@ -117,31 +147,100 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     return () => {
       if (container) {
         container.removeEventListener('scroll', updateVisibleArea);
+        container.removeEventListener('mousemove', handleMouseMove);
       }
       window.removeEventListener('resize', handleResize);
+      
+      // Clean up auto-scroll animation if active
+      if (autoScrollAnimationId.current !== null) {
+        cancelAnimationFrame(autoScrollAnimationId.current);
+      }
     };
   }, [gridDimensions, updateVisibleArea]);
   
-  // Log grid changes for debugging
+  // Auto-scrolling effect when cursor approaches edges
   useEffect(() => {
-    // Count cells by state for debugging
-    let scaryCount = 0;
-    let selectedCount = 0;
-    let revealedCount = 0;
+    const container = gridContainerRef.current;
+    if (!container || !hasMouseMoved) return;
     
-    grid.forEach(row => {
-      row.forEach(cell => {
-        if (cell.isScary) scaryCount++;
-        if (cell.isSelected) selectedCount++;
-        if (cell.isRevealed) revealedCount++;
-      });
-    });
+    const { clientWidth, clientHeight } = container;
+    const { x, y } = mousePosition;
     
-    console.log(`Grid stats: ${scaryCount} scary, ${selectedCount} selected, ${revealedCount} revealed`);
-    console.log(`Visible area: Rows ${visibleArea.startRow}-${visibleArea.endRow}, Cols ${visibleArea.startCol}-${visibleArea.endCol}`);
-    console.log(`Rendering ${(visibleArea.endRow - visibleArea.startRow + 1) * (visibleArea.endCol - visibleArea.startCol + 1)} cells`);
-  }, [grid, visibleArea]);
-
+    // Calculate distances from each edge
+    const distanceFromLeft = x;
+    const distanceFromRight = clientWidth - x;
+    const distanceFromTop = y;
+    const distanceFromBottom = clientHeight - y;
+    
+    // Calculate scroll speeds based on distance from edges
+    // The closer to the edge, the faster the scroll
+    let scrollX = 0;
+    let scrollY = 0;
+    
+    if (distanceFromLeft < EDGE_THRESHOLD) {
+      // Scroll left (negative value)
+      scrollX = -calculateScrollSpeed(distanceFromLeft);
+    } else if (distanceFromRight < EDGE_THRESHOLD) {
+      // Scroll right (positive value)
+      scrollX = calculateScrollSpeed(distanceFromRight);
+    }
+    
+    if (distanceFromTop < EDGE_THRESHOLD) {
+      // Scroll up (negative value)
+      scrollY = -calculateScrollSpeed(distanceFromTop);
+    } else if (distanceFromBottom < EDGE_THRESHOLD) {
+      // Scroll down (positive value)
+      scrollY = calculateScrollSpeed(distanceFromBottom);
+    }
+    
+    // If we need to scroll in any direction
+    if (scrollX !== 0 || scrollY !== 0) {
+      setIsAutoScrolling(true);
+      
+      // Start or continue auto-scrolling animation
+      const performAutoScroll = () => {
+        if (!container) return;
+        
+        // Apply scroll
+        container.scrollLeft += scrollX;
+        container.scrollTop += scrollY;
+        
+        // Continue animation
+        autoScrollAnimationId.current = requestAnimationFrame(performAutoScroll);
+      };
+      
+      // Start animation if not already running
+      if (autoScrollAnimationId.current === null) {
+        autoScrollAnimationId.current = requestAnimationFrame(performAutoScroll);
+      }
+    } else if (isAutoScrolling) {
+      // Stop auto-scrolling if active but no longer needed
+      setIsAutoScrolling(false);
+      if (autoScrollAnimationId.current !== null) {
+        cancelAnimationFrame(autoScrollAnimationId.current);
+        autoScrollAnimationId.current = null;
+      }
+    }
+    
+    // Cleanup
+    return () => {
+      if (autoScrollAnimationId.current !== null) {
+        cancelAnimationFrame(autoScrollAnimationId.current);
+        autoScrollAnimationId.current = null;
+      }
+    };
+  }, [mousePosition, isAutoScrolling, hasMouseMoved]);
+  
+  // Helper function to calculate scroll speed based on distance from edge
+  const calculateScrollSpeed = (distance: number): number => {
+    // Ensure distance is within threshold
+    if (distance >= EDGE_THRESHOLD) return 0;
+    
+    // Calculate a value between 0 and MAX_SCROLL_SPEED
+    // The closer to the edge (smaller distance), the closer to MAX_SCROLL_SPEED
+    return MAX_SCROLL_SPEED * (1 - distance / EDGE_THRESHOLD);
+  };
+  
   // Handle cell click events - memoized for performance
   const handleCellClick = useCallback((row: number, col: number, isScary: boolean, isRoot: boolean) => {
     if (isScary) {
@@ -199,6 +298,26 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     
     return cells;
   }, [grid, visibleArea, gridSize, cellSize, centerIndices, handleCellClick]);
+
+  // Log grid changes for debugging
+  useEffect(() => {
+    // Count cells by state for debugging
+    let scaryCount = 0;
+    let selectedCount = 0;
+    let revealedCount = 0;
+    
+    grid.forEach(row => {
+      row.forEach(cell => {
+        if (cell.isScary) scaryCount++;
+        if (cell.isSelected) selectedCount++;
+        if (cell.isRevealed) revealedCount++;
+      });
+    });
+    
+    console.log(`Grid stats: ${scaryCount} scary, ${selectedCount} selected, ${revealedCount} revealed`);
+    console.log(`Visible area: Rows ${visibleArea.startRow}-${visibleArea.endRow}, Cols ${visibleArea.startCol}-${visibleArea.endCol}`);
+    console.log(`Rendering ${(visibleArea.endRow - visibleArea.startRow + 1) * (visibleArea.endCol - visibleArea.startCol + 1)} cells`);
+  }, [grid, visibleArea]);
 
   return (
     <div className="gameboard">

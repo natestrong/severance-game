@@ -180,6 +180,18 @@ Below are the game rules that will be progressively implemented, with checkboxes
 - [x] Optimize grid rendering for large number of cells
 - [x] Implement efficient neighbor calculation
 - [x] Add proper event handling to prevent excessive re-renders
+- [x] Implement auto-scrolling when cursor approaches grid edges
+
+## Implemented Features
+
+### Core Game Mechanics
+- Grid Generation: Random number grid with "scary" cells (1% of total)
+- Cell Selection: Click to select a cell, revealing its value
+- Point System: Each selected cell is worth two points
+- Score Tracking: Overall score and percentage per group box
+- Group Completion: Track and handle group completion
+- Visual Feedback: Clear distinction between selected, scary, and counted cells
+- Auto-scrolling: Grid automatically scrolls when cursor approaches edges
 
 ## Animation System Details
 
