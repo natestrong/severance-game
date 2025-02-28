@@ -471,10 +471,12 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       // Make a deep copy of the grid to work with
       const newGrid = gridState.map(row => [...row]);
       
-      // When a group is complete, mark all cells as counted but keep them visually selected
+      // When a group is complete, we first mark all cells as selected
+      // but don't mark them as counted yet - that happens after animation
       cellsInGroup.forEach(({row, col}) => {
-        // Keep the cells visually selected but mark them as counted
-        newGrid[row][col].isCounted = true;
+        // Keep the cells visually selected
+        newGrid[row][col].isSelected = true;
+        // We will set isCounted=true after the animation completes
       });
       
       // Update the group box's completion percentage with the collected points
@@ -494,7 +496,19 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           triggerCellAnimations(cellsInGroup, groupId);
         }, 50);
       } else {
-        console.log("Preventing duplicate animation trigger");
+        console.log("Preventing duplicate animation trigger - directly marking as counted");
+        
+        // If we're preventing duplicate animations, we need to directly mark cells as counted
+        // without going through the animation process
+        const updatedGrid = [...grid];
+        cellsInGroup.forEach(({row, col}) => {
+          if (updatedGrid[row] && updatedGrid[row][col]) {
+            // Mark as counted immediately since there will be no animation
+            updatedGrid[row][col].isCounted = true;
+            // We don't need to set isAnimating=true since we're not animating
+          }
+        });
+        setGrid(updatedGrid);
       }
     }
     
@@ -539,7 +553,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     // Mark the cells as animating (to hide them in the grid)
     const updatedGrid = [...grid];
     cells.forEach(cell => {
-      updatedGrid[cell.row][cell.col].isAnimating = true;
+      if (updatedGrid[cell.row] && updatedGrid[cell.row][cell.col]) {
+        updatedGrid[cell.row][cell.col].isAnimating = true;
+        // Important: Don't set isCounted=true here yet, only set it after animation completes
+      }
     });
     setGrid(updatedGrid);
     
@@ -573,6 +590,22 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           value: cell.value.toString(),
           onComplete: () => {
             console.log(`Animation ${animId} completed`);
+            // When the animation completes:
+            // 1. Mark the cell as counted (it's now in the groupbox)
+            // 2. Remove the animating flag 
+            // 3. Use functional update to avoid stale state references
+            setGrid(currentGrid => {
+              const updatedGrid = [...currentGrid];
+              const cellToUpdate = updatedGrid[cell.row]?.[cell.col];
+              if (cellToUpdate) {
+                cellToUpdate.isAnimating = false;
+                cellToUpdate.isCounted = true;
+                console.log(`Set cell [${cell.row}, ${cell.col}] to isCounted=true, isAnimating=false`);
+              } else {
+                console.log(`Cell [${cell.row}, ${cell.col}] not found in grid, cannot update flags`);
+              }
+              return updatedGrid;
+            });
           }
         });
       }, index * 50); // Stagger the animations by 50ms

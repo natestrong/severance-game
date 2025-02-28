@@ -153,6 +153,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     const cellInGrid = grid[row][col];
     console.log(`Grid cell state: isScary=${cellInGrid.isScary}, isRoot=${cellInGrid.isRoot}, isRevealed=${cellInGrid.isRevealed}, isSelected=${cellInGrid.isSelected}`);
     
+    // Don't process clicks on cells that are already counted or animating
+    if (cellInGrid.isCounted || cellInGrid.isAnimating) {
+      console.log(`Cell at [${row}, ${col}] is already counted or animating, ignoring click`);
+      return;
+    }
+    
     if (isScary) {
       console.log(`This is a scary cell, calling selectScaryNumber`);
       
@@ -257,7 +263,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
               isAnimating={cell.isAnimating}
               isCenter={isCenter}
               cellSize={cellSize}
-              onClick={() => handleCellClick(row, col, cell.isScary, cell.isRoot)}
+              onClick={cell.isAnimating ? undefined : () => handleCellClick(row, col, cell.isScary, cell.isRoot)}
             />
           );
         }

@@ -367,6 +367,11 @@ const Letter: React.FC<LetterProps> = (props) => {
       ? 'selected' 
       : 'normal';
   
+  // If this is a counted cell that's not actively animating, don't render anything
+  if (isCounted && !isAnimating) {
+    return null;
+  }
+  
   return (
     <div 
       className={`
@@ -375,24 +380,23 @@ const Letter: React.FC<LetterProps> = (props) => {
         ${isScary ? 'scary-cell' : ''}
         ${isSelected ? 'selected-cell' : ''}
         ${isRevealedScary ? 'revealed-cell' : ''}
-        ${isCounted ? 'counted-cell' : ''}
       `}
       id={elementId}
       data-row={row}
       data-col={col}
-      onClick={onClick}
+      onClick={isAnimating ? undefined : onClick}
       data-is-scary={isScary}
       data-is-selected={isSelected}
       data-is-revealed={isRevealed}
       data-is-root={isRoot}
-      data-is-counted={isCounted}
       style={{
         top: `${row * cellSize}px`,
         left: `${col * cellSize}px`,
         width: `${cellSize}px`,
         height: `${cellSize}px`,
         backgroundColor: 'transparent',
-        border: 'none'
+        border: 'none',
+        pointerEvents: isAnimating ? 'none' : 'auto' // Disable interaction during animation
       }}
     >
       <AnimatePresence>
