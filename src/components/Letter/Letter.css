@@ -50,6 +50,36 @@
   font-weight: bold;
 }
 
+.letter {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cascadia Code', monospace;
+  font-size: 1.1em;
+  color: var(--text-color);
+  background-color: transparent;
+  transition: background-color 0.2s, transform 0.1s, color 0.2s;
+  position: absolute;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+}
+
+.letter.scary {
+  animation: scary-jitter 0.08s infinite ease-in-out;
+  color: var(--letter-scary-color);
+  cursor: grab; /* Shows the grab cursor to indicate draggable */
+}
+
+/* Show grabbing cursor while dragging */
+.letter.scary:active {
+  cursor: grabbing;
+}
+
 /* Styling for revealed neighbor cells */
 .revealed-cell {
   cursor: url('/cursor.png') 0 0, auto !important;

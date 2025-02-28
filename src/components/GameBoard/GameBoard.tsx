@@ -18,14 +18,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
   } = useGameContext();
   
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  // Animation frame ID for cleanup of auto-scrolling
-  const autoScrollAnimationId = useRef<number | null>(null);
-  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-  // Auto-scroll settings
-  const EDGE_THRESHOLD = 200; // Distance from edge that triggers auto-scroll (in pixels)
-  const MAX_SCROLL_SPEED = 35; // Maximum scroll speed in pixels per frame
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastSelectedCell, setLastSelectedCell] = useState<{row: number, col: number} | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  // Flag to track if mouse has moved at least once
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const [visibleArea, setVisibleArea] = useState({
     startRow: 0,
@@ -44,7 +39,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
   
   // Initialize the grid when component mounts
   useEffect(() => {
-    console.log(`Initializing grid with size ${gridSize}`);
     initializeGrid(gridSize);
     // Only run this effect once on mount
   }, []);
@@ -98,12 +92,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
     // Use passive event listener for better scroll performance
     container.addEventListener('scroll', updateVisibleArea, { passive: true });
     
-    // Mouse move handler for auto-scrolling
+    // Mouse move handler - simplified without auto-scrolling
     const handleMouseMove = (e: MouseEvent) => {
-      // Get container bounds
-      const rect = container.getBoundingClientRect();
-      
       // Calculate mouse position relative to the container
+      const rect = container.getBoundingClientRect();
       const relativeX = e.clientX - rect.left;
       const relativeY = e.clientY - rect.top;
       
@@ -150,121 +142,86 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
         container.removeEventListener('mousemove', handleMouseMove);
       }
       window.removeEventListener('resize', handleResize);
-      
-      // Clean up auto-scroll animation if active
-      if (autoScrollAnimationId.current !== null) {
-        cancelAnimationFrame(autoScrollAnimationId.current);
-      }
     };
-  }, [gridDimensions, updateVisibleArea]);
-  
-  // Auto-scrolling effect when cursor approaches edges
-  useEffect(() => {
-    const container = gridContainerRef.current;
-    if (!container || !hasMouseMoved) return;
-    
-    const { clientWidth, clientHeight } = container;
-    const { x, y } = mousePosition;
-    
-    // Calculate distances from each edge
-    const distanceFromLeft = x;
-    const distanceFromRight = clientWidth - x;
-    const distanceFromTop = y;
-    const distanceFromBottom = clientHeight - y;
-    
-    // Calculate scroll speeds based on distance from edges
-    // The closer to the edge, the faster the scroll
-    let scrollX = 0;
-    let scrollY = 0;
-    
-    if (distanceFromLeft < EDGE_THRESHOLD) {
-      // Scroll left (negative value)
-      scrollX = -calculateScrollSpeed(distanceFromLeft);
-    } else if (distanceFromRight < EDGE_THRESHOLD) {
-      // Scroll right (positive value)
-      scrollX = calculateScrollSpeed(distanceFromRight);
-    }
-    
-    if (distanceFromTop < EDGE_THRESHOLD) {
-      // Scroll up (negative value)
-      scrollY = -calculateScrollSpeed(distanceFromTop);
-    } else if (distanceFromBottom < EDGE_THRESHOLD) {
-      // Scroll down (positive value)
-      scrollY = calculateScrollSpeed(distanceFromBottom);
-    }
-    
-    // If we need to scroll in any direction
-    if (scrollX !== 0 || scrollY !== 0) {
-      setIsAutoScrolling(true);
-      
-      // Start or continue auto-scrolling animation
-      const performAutoScroll = () => {
-        if (!container) return;
-        
-        // Apply scroll
-        container.scrollLeft += scrollX;
-        container.scrollTop += scrollY;
-        
-        // Continue animation
-        autoScrollAnimationId.current = requestAnimationFrame(performAutoScroll);
-      };
-      
-      // Start animation if not already running
-      if (autoScrollAnimationId.current === null) {
-        autoScrollAnimationId.current = requestAnimationFrame(performAutoScroll);
-      }
-    } else if (isAutoScrolling) {
-      // Stop auto-scrolling if active but no longer needed
-      setIsAutoScrolling(false);
-      if (autoScrollAnimationId.current !== null) {
-        cancelAnimationFrame(autoScrollAnimationId.current);
-        autoScrollAnimationId.current = null;
-      }
-    }
-    
-    // Cleanup
-    return () => {
-      if (autoScrollAnimationId.current !== null) {
-        cancelAnimationFrame(autoScrollAnimationId.current);
-        autoScrollAnimationId.current = null;
-      }
-    };
-  }, [mousePosition, isAutoScrolling, hasMouseMoved]);
-  
-  // Helper function to calculate scroll speed based on distance from edge
-  const calculateScrollSpeed = (distance: number): number => {
-    // Ensure distance is within threshold
-    if (distance >= EDGE_THRESHOLD) return 0;
-    
-    // Calculate a value between 0 and MAX_SCROLL_SPEED
-    // The closer to the edge (smaller distance), the closer to MAX_SCROLL_SPEED
-    return MAX_SCROLL_SPEED * (1 - distance / EDGE_THRESHOLD);
-  };
+  }, [gridDimensions, updateVisibleArea, hasMouseMoved]);
   
   // Handle cell click events - memoized for performance
   const handleCellClick = useCallback((row: number, col: number, isScary: boolean, isRoot: boolean) => {
     if (isScary) {
-      console.log(`Clicked scary number at [${row}, ${col}], isRoot: ${isRoot}`);
-      selectScaryNumber(row, col);
+      selectScaryNumber(row, col, isRoot);
       
       // Only root scary numbers should reveal neighbors
       if (isRoot) {
-        console.log(`Revealing neighbors for root scary number at [${row}, ${col}]`);
         revealScaryNeighbors(row, col);
-      } else {
-        console.log(`Not revealing neighbors for non-root scary number at [${row}, ${col}]`);
       }
-    } else {
-      console.log(`Clicked regular number at [${row}, ${col}]`);
     }
   }, [selectScaryNumber, revealScaryNeighbors]);
+  
+  // Handle mouse events for drag selection
+  useEffect(() => {
+    const container = gridContainerRef.current;
+    if (!container) return;
+    
+    const handleMouseDown = () => {
+      setIsDragging(true);
+      setLastSelectedCell(null);
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setLastSelectedCell(null);
+    };
+    
+    container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+  
+  // Mouse move handler for drag selection
+  useEffect(() => {
+    if (!isDragging || !gridContainerRef.current) return;
+    
+    const processDragOver = () => {
+      const container = gridContainerRef.current;
+      if (!container) return;
+      
+      const rect = container.getBoundingClientRect();
+      const relativeX = mousePosition.x;
+      const relativeY = mousePosition.y;
+      
+      const scrollLeft = container.scrollLeft;
+      const scrollTop = container.scrollTop;
+      
+      // Calculate which grid cell the mouse is over
+      const col = Math.floor((relativeX + scrollLeft) / cellSize);
+      const row = Math.floor((relativeY + scrollTop) / cellSize);
+      
+      // Check if this is a new cell (not the last one we processed)
+      if (lastSelectedCell === null || lastSelectedCell.row !== row || lastSelectedCell.col !== col) {
+        // Get the cell at this position if it's within bounds
+        if (row >= 0 && row < gridDimensions.height && col >= 0 && col < gridDimensions.width) {
+          const cell = grid[row][col];
+          // Only select if it's a scary cell and not already selected
+          if (cell && cell.isScary && !cell.isSelected && !cell.isCounted) {
+            handleCellClick(row, col, true, false);
+            setLastSelectedCell({ row, col });
+          }
+        }
+      }
+    };
+    
+    processDragOver();
+  }, [isDragging, mousePosition, lastSelectedCell, grid, gridDimensions, cellSize, handleCellClick]);
 
-  // Generate only the visible portion of cells
+  // Render all the visible Letters based on the visible area
   const visibleCells = useMemo(() => {
     if (grid.length === 0) return null;
     
     const cells = [];
-    const startTime = performance.now();
     
     // Optimize the loop to avoid excess calculations
     for (let row = visibleArea.startRow; row <= visibleArea.endRow; row++) {
@@ -293,14 +250,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
       }
     }
     
-    const endTime = performance.now();
-    console.log(`Cell rendering took ${endTime - startTime}ms`);
-    
     return cells;
   }, [grid, visibleArea, gridSize, cellSize, centerIndices, handleCellClick]);
 
-  // Log grid changes for debugging
+  // Log grid changes for debugging - removing verbose logs
   useEffect(() => {
+    // Only log occasionally to reduce console spam
+    if (Math.random() > 0.05) return; // Only log ~5% of the time
+    
     // Count cells by state for debugging
     let scaryCount = 0;
     let selectedCount = 0;
@@ -313,10 +270,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
         if (cell.isRevealed) revealedCount++;
       });
     });
-    
-    console.log(`Grid stats: ${scaryCount} scary, ${selectedCount} selected, ${revealedCount} revealed`);
-    console.log(`Visible area: Rows ${visibleArea.startRow}-${visibleArea.endRow}, Cols ${visibleArea.startCol}-${visibleArea.endCol}`);
-    console.log(`Rendering ${(visibleArea.endRow - visibleArea.startRow + 1) * (visibleArea.endCol - visibleArea.startCol + 1)} cells`);
   }, [grid, visibleArea]);
 
   return (
@@ -325,6 +278,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
         <div 
           className="number-grid-container"
           ref={gridContainerRef}
+          style={{ 
+            position: 'relative',
+            height: 'calc(100vh - 60px)', 
+            overflow: 'auto',
+            cursor: isDragging ? 'grabbing' : 'auto'
+          }}
         >
           <div 
             className="number-grid"

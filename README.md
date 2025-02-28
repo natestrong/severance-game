@@ -153,45 +153,17 @@ Below are the game rules that will be progressively implemented, with checkboxes
 6. Implement the scoring system and random Group Box assignment
 7. Add the level completion detection and celebration
 
-## Implementation Todos
-
-### Context and State Management
-- [x] Enhance GameContext to store scary numbers
-- [x] Add state for tracking the five Group Boxes and their completion percentages 
-- [x] Create functions for calculating neighbors of a cell
-- [x] Implement chain detection algorithm to verify connected scary numbers
-- [x] Add game completion calculation based on Group Box percentages
-
-### UI Components
-- [x] Create Group Boxes component for the bottom of the page
-- [x] Add click handlers to GameBoard for scary number selection
-- [x] Implement visual feedback for selected scary numbers
-- [x] Add progress tracking UI for overall completion
-- [ ] Create visual effects for completed groups
-
-### Game Logic
-- [x] Generate scary numbers (1% of total grid) with distinct jitter
-- [x] Implement function to reveal neighboring scary numbers (1-20) when one is clicked
-- [x] Create validation for unbroken chains of scary numbers
-- [x] Implement group completion detection when all connected scary numbers are selected
-- [x] Develop random assignment of completed groups to available Group Boxes
-
-### Performance and Optimization
-- [x] Optimize grid rendering for large number of cells
-- [x] Implement efficient neighbor calculation
-- [x] Add proper event handling to prevent excessive re-renders
-- [x] Implement auto-scrolling when cursor approaches grid edges
-
 ## Implemented Features
 
 ### Core Game Mechanics
 - Grid Generation: Random number grid with "scary" cells (1% of total)
 - Cell Selection: Click to select a cell, revealing its value
+- Drag Selection: Click and drag to select multiple scary numbers in one motion
 - Point System: Each selected cell is worth two points
 - Score Tracking: Overall score and percentage per group box
 - Group Completion: Track and handle group completion
 - Visual Feedback: Clear distinction between selected, scary, and counted cells
-- Auto-scrolling: Grid automatically scrolls when cursor approaches edges
+- Text Selection Disabled: Text selection is disabled during drag operations to prevent accidental text selection
 
 ## Animation System Details
 
