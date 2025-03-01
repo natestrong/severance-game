@@ -111,6 +111,12 @@ try {
   noiseGenerator = (x: number, y: number) => Math.sin(x) * Math.cos(y);
 }
 
+// Generate a random breathing cycle duration
+const generateBreathingCycle = () => {
+  // Random breath cycle between 4 and 8 seconds (slow breathing)
+  return randomInRange(4, 8);
+};
+
 const Letter: React.FC<LetterProps> = (props) => {
   const {
     value,
@@ -135,6 +141,9 @@ const Letter: React.FC<LetterProps> = (props) => {
     generateAnimationParams(row, col, isScary, isRevealedScary)
   );
   
+  // Generate a unique breathing cycle duration for this letter
+  const [breathingCycle] = useState(() => generateBreathingCycle());
+  
   // Apply jitter to scary cells that aren't selected
   // This includes both original scary cells and revealed scary neighbors
   const shouldApplyJitter = (isScary || isRevealedScary) && !isSelected;
@@ -152,6 +161,9 @@ const Letter: React.FC<LetterProps> = (props) => {
   // Create additional motion values for the scary jitter effect
   const jitterX = useMotionValue(0);
   const jitterY = useMotionValue(0);
+  
+  // Create motion value for the breathing animation - needs to start at exactly 1
+  const breathScale = useMotionValue(1);
   
   // Combine slow shake and jitter for the final transform
   // Now both effects will be applied to scary numbers
@@ -307,7 +319,7 @@ const Letter: React.FC<LetterProps> = (props) => {
     let jitterTime = 0;
     
     const animateJitter = () => {
-      // Increment time for jitter animation (purposely faster to create distinct jittery effect)
+      // Increment the jitter time slowly
       jitterTime += 0.1;
       
       // Use different noise fields for jitter to create rapid, sharp movements
@@ -326,10 +338,38 @@ const Letter: React.FC<LetterProps> = (props) => {
     return () => cancelAnimationFrame(jitterFrameId);
   }, [shouldApplyJitter, jitterX, jitterY]);
 
+  // Setup slow breathing animation for all letters
+  useEffect(() => {
+    let breathingTime = Math.random() * 100; // Random starting point in the cycle
+    
+    const animateBreathing = () => {
+      // Increment the breathing time slowly
+      breathingTime += 0.005;
+      
+      // Create a sine wave oscillation for the breathing effect
+      // Scale between 0.85 and 1.15 for a more noticeable effect
+      const breathValue = 1 + (Math.sin(breathingTime * (Math.PI * 2 / breathingCycle)) * 0.15);
+      
+      // Update the breath scale
+      breathScale.set(breathValue);
+      
+      // Continue the animation
+      return requestAnimationFrame(animateBreathing);
+    };
+    
+    // Start the breathing animation
+    const breathingFrame = requestAnimationFrame(animateBreathing);
+    
+    // Cleanup
+    return () => {
+      cancelAnimationFrame(breathingFrame);
+    };
+  }, [breathingCycle, breathScale]);
+
   // Framer Motion animation variants
   const letterVariants = {
     normal: { 
-      scale: 1,
+      // Remove scale from here so it doesn't override our breathing animation
       opacity: 1
     },
     selected: { 
@@ -366,7 +406,7 @@ const Letter: React.FC<LetterProps> = (props) => {
     : isSelected || isCounted 
       ? 'selected' 
       : 'normal';
-  
+    
   // If this is a counted cell that's not actively animating, don't render anything
   if (isCounted && !isAnimating) {
     return null;
@@ -413,7 +453,12 @@ const Letter: React.FC<LetterProps> = (props) => {
           animate={animationState}
           exit="exit"
           variants={letterVariants}
-          style={{ x, y }}
+          style={{ 
+            x, 
+            y,
+            // Apply breathing scale only when not selected
+            scale: isSelected ? 2.2 : breathScale
+          }}
           layout
         >
           {value}
