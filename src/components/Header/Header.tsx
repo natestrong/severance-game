@@ -4,7 +4,7 @@ import { useGameContext } from '../../context/GameContext';
 import LumonLogo from '../../assets/Lumon_transparent.png';
 
 const Header: React.FC = () => {
-  const { currentLevel, completionPercentage } = useGameContext();
+  const { currentLevel, completionPercentage, setCompletionPercentage } = useGameContext();
   const roundedPercentage = Math.round(completionPercentage);
   const percentText = `${roundedPercentage}% Complete`;
 
@@ -21,7 +21,13 @@ const Header: React.FC = () => {
           {percentText}
         </span>
         <div className="logo-container">
-          <img src={LumonLogo} alt="Lumon Industries" />
+          <img 
+            src={LumonLogo} 
+            alt="Lumon Industries" 
+            onClick={() => setCompletionPercentage(100)}
+            style={{ cursor: 'pointer' }}
+            title="Finish Game"
+          />
         </div>
       </div>
     </header>
