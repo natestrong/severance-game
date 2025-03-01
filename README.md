@@ -1,34 +1,40 @@
 # Severence Game
 
-A React TypeScript application with a clean layout featuring a header, game board, and footer.
+**Play the game here: [https://natestrong.github.io/severance-game/](https://natestrong.github.io/severance-game/)**
+
+A Severance-inspired macrodata refinement game built with React and TypeScript. Identify and select the "scary numbers" to help complete the Cold Harbor level.
 
 ## Project Overview
 
-This project is a React application built with TypeScript and Vite, structured with a simple and clean layout:
+This game is a tribute to the Apple TV+ show 'Severance', inspired by the mysterious "macrodata refinement" task performed by the characters. The application is built with modern web technologies focused on performance, accessibility, and visual aesthetics:
 
-- **Header**: Contains the game title
-- **Game Board**: Main content area for the game (takes up most of the screen space)
-- **Footer**: Contains copyright information
+- **Header**: Contains the Lumon logo and game title
+- **Game Board**: The main interactive surface featuring the numbers grid with various animations
+- **Footer**: Contains copyright information and displays the five progress tracker boxes
+- **CRT Effect Overlay**: A retrofuturistic CRT screen effect using Three.js that enhances the Severance aesthetic
 
 ## Technologies Used
 
-- React 18
-- TypeScript
-- Vite (for fast development and bundling)
-- CSS Modules
+- **React 19**: Latest version of React for building the user interface
+- **TypeScript**: For type safety and enhanced development experience
+- **Vite**: For fast development and optimized production builds
+- **Three.js & React Three Fiber**: For the CRT screen effect overlay
+- **Framer Motion**: For advanced animations and transitions
+- **Simplex Noise**: For procedural animation patterns
+- **CSS Modules**: For component-scoped styling
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14 or newer)
-- npm (v6 or newer)
+- Node.js (v18 or newer)
+- npm (v8 or newer)
 
 ### Installation
 
 1. Clone the repository
    ```bash
-   git clone [repository URL]
+   git clone https://github.com/natestrong/severance-game.git
    cd severence-game
    ```
 
@@ -50,6 +56,7 @@ This project is a React application built with TypeScript and Vite, structured w
 - `npm run build` - Build the project for production
 - `npm run lint` - Run ESLint to check code quality
 - `npm run preview` - Preview the production build locally
+- `npm run deploy` - Deploy the application to GitHub Pages
 
 ## Project Structure
 
@@ -120,40 +127,29 @@ The GameContext (`/src/context/GameContext.tsx`) manages the game state:
 
 ## Game Rules
 
-Below are the game rules that will be progressively implemented, with checkboxes to track our progress:
-
 ### Game Objective and Completion
-- [ ] **Game Objective**: Find and refine all "scary numbers" to help complete the Cold Harbor game level
-- [ ] **Level Completion**: The game completes when the Cold Harbor level reaches 100%
+- **Game Objective**: Find and refine all "scary numbers" to help complete the Cold Harbor game level
+- **Level Completion**: The game completes when the Cold Harbor level reaches 100%
 
 ### Game Board and Scary Numbers
-- [x] **Game Board**: The board contains numerous numbers, with 1% of them being "scary numbers"
-- [x] **Identifying Scary Numbers**: Scary numbers have a more intense jitter compared to the normal slow shake of other numbers
-- [x] **Number Selection**: Only scary numbers can be clicked and selected; regular numbers will not respond
+- **Game Board**: The board contains numerous numbers, with 1% of them being "scary numbers"
+- **Identifying Scary Numbers**: Scary numbers have a more intense jitter compared to the normal slow shake of other numbers
+- **Number Selection**: Only scary numbers can be clicked and selected; regular numbers will not respond
 
 ### Scary Number Groups and Mechanics
-- [x] **Group Formation**: When a scary number is clicked, 1-20 neighboring numbers become "scary" as well
-- [x] **Chain Requirement**: All scary numbers in a group must form an unbroken chain of neighbors from the original selected number
-- [x] **Group Completion**: When all numbers in a scary group are selected, they disappear from the board
+- **Group Formation**: When a scary number is clicked, 1-20 neighboring numbers become "scary" as well
+- **Chain Requirement**: All scary numbers in a group must form an unbroken chain of neighbors from the original selected number
+- **Group Completion**: When all numbers in a scary group are selected, they disappear from the board
 
 ### Progress Tracking System
-- [x] **Group Boxes**: Five Group Boxes at the bottom of the page track completion progress
-- [x] **Box Contribution**: Each Group Box contributes 20% to the overall level completion
-- [x] **Scoring**: Each scary number in a completed group is worth two percentage points
-- [x] **Random Assignment**: Completed scary groups are randomly assigned to an available Group Box
-- [x] **Box Filling**: Group Boxes are filled up to 100% and then considered complete
-- [ ] **Final Completion**: When all five Group Boxes reach 100%, the level is complete
+- **Group Boxes**: Five Group Boxes at the bottom of the page track completion progress
+- **Box Contribution**: Each Group Box contributes 20% to the overall level completion
+- **Scoring**: Each scary number in a completed group is worth two percentage points
+- **Random Assignment**: Completed scary groups are randomly assigned to an available Group Box
+- **Box Filling**: Group Boxes are filled up to 100% and then considered complete
+- **Final Completion**: When all five Group Boxes reach 100%, the level is complete
 
-### Implementation Order
-1. First, implement the game board with basic number display and normal shaking animation
-2. Add the Group Boxes UI at the bottom of the page
-3. Implement the identification and special jitter for scary numbers
-4. Create the logic for scary number selection and neighbor chain formation
-5. Develop the group completion mechanics and number disappearance
-6. Implement the scoring system and random Group Box assignment
-7. Add the level completion detection and celebration
-
-## Implemented Features
+## Game Features
 
 ### Core Game Mechanics
 - Grid Generation: Random number grid with "scary" cells (1% of total)
@@ -199,8 +195,39 @@ The letter animation system works in two layers:
 
 When a letter is selected:
 1. All animations are stopped
-2. The letter scales up with a bounce effect
+2. The letter zooms with a bounce effect for visual feedback
 3. A glow effect is applied
 4. The position is fixed
+
+## Architecture
+
+The application follows a component-based architecture with React Context for state management:
+
+### State Management
+
+- **GameContext**: Central state management system handling game logic, scoring, and group management
+- **useGameContext Hook**: Custom hook for components to access and update game state
+- **Immutable Updates**: State updates use immutable patterns for better performance and predictability
+
+### Performance Optimizations
+
+- **Virtualized Rendering**: Only visible grid cells are rendered, improving performance for large grids
+- **React.memo**: Components use memoization to prevent unnecessary re-renders
+- **Custom Equality Checks**: Letter components use custom equality functions to minimize renders
+- **Throttled Updates**: Animation updates are throttled and use requestAnimationFrame for efficiency
+- **CSS Hardware Acceleration**: Transforms and animations use hardware acceleration where possible
+
+### Special Effects
+
+- **CRT Screen Effect**: Uses Three.js and React Three Fiber for post-processing effects
+- **Chromatic Aberration**: Simulates the color separation seen in old CRT monitors
+- **Bloom Effect**: Creates the glow effect characteristic of phosphor displays
+- **Scanlines**: Subtle scanline effect to enhance the retro aesthetic
+
+### Responsive Design
+
+- **CSS Variables**: Custom properties for consistent theming and easy updates
+- **Viewport Adjustments**: Layout adapts to different screen sizes and orientations
+- **Performance-Aware Design**: Animation complexity scales based on device capabilities
 
 This dual-layered animation system creates an immersive and responsive game experience while maintaining performance even with large grids.

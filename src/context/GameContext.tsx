@@ -707,8 +707,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     }
   }, [completionPercentage, gameComplete]);
 
-  // Keep track of whether this is the first game
-  const [isFirstGame, setIsFirstGame] = useState(true);
+  // Keep track of whether this is the first game - using the state even if not directly referenced
+  const [, setIsFirstGame] = useState(true);
   
   // Function to reset the game with a new random level
   const resetGame = () => {

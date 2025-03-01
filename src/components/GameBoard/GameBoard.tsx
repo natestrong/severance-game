@@ -208,7 +208,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
       const container = gridContainerRef.current;
       if (!container) return;
       
-      const rect = container.getBoundingClientRect();
+      // Get container boundaries - unused rect var removed
+      container.getBoundingClientRect();
       const relativeX = mousePosition.x;
       const relativeY = mousePosition.y;
       
@@ -252,7 +253,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
           cells.push(
             <Letter 
               key={`${row}-${col}`}
-              value={cell.value}
+              value={String(cell.value)}
               row={row}
               col={col}
               isScary={cell.isScary}
@@ -263,7 +264,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gridSize = 100, cellSize = 100 })
               isAnimating={cell.isAnimating}
               isCenter={isCenter}
               cellSize={cellSize}
-              onClick={cell.isAnimating ? undefined : () => handleCellClick(row, col, cell.isScary, cell.isRoot)}
+              onClick={cell.isAnimating ? (() => {}) : () => handleCellClick(row, col, cell.isScary, cell.isRoot)}
             />
           );
         }

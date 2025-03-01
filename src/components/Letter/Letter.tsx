@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { createNoise2D } from 'simplex-noise';
 import './Letter.css';
@@ -23,10 +23,7 @@ const randomInRange = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
 };
 
-// Random integer within a range (inclusive)
-const randomIntInRange = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+// Random integer function removed as it's not used
 
 // Generate animation parameters based on letter characteristics
 const generateAnimationParams = (row: number, col: number, isScary: boolean, isRevealed: boolean) => {
@@ -167,8 +164,14 @@ const Letter: React.FC<LetterProps> = (props) => {
   
   // Combine slow shake and jitter for the final transform
   // Now both effects will be applied to scary numbers
-  const x = useTransform([slowX, jitterX], ([sX, jX]) => sX + (shouldApplyJitter ? jX : 0));
-  const y = useTransform([slowY, jitterY], ([sY, jY]) => sY + (shouldApplyJitter ? jY : 0));
+  const x = useTransform([slowX, jitterX], (values) => {
+    const [sX, jX] = values;
+    return (sX as number) + (shouldApplyJitter ? (jX as number) : 0);
+  });
+  const y = useTransform([slowY, jitterY], (values) => {
+    const [sY, jY] = values;
+    return (sY as number) + (shouldApplyJitter ? (jY as number) : 0);
+  });
   
   // Reference to track animation frame
   const animationFrameRef = useRef<number | null>(null);

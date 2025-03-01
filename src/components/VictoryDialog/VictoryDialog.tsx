@@ -52,9 +52,10 @@ const ANIMATION_PARAMS = {
 const VictoryDialog: React.FC<VictoryDialogProps> = ({ isVisible, onClose }) => {
   const controls = useAnimation();
   const isAnimatingRef = useRef(false);
-  const [isClosing, setIsClosing] = useState(false);
+  // Using const [isClosing, setIsClosing] where setIsClosing is used in the component
+  const [, setIsClosing] = useState(false);
   const [victoryMessage, setVictoryMessage] = useState("");
-  const { resetGame, acknowledgeGameComplete } = useGameContext();
+  const { resetGame } = useGameContext();
   
   // Reset animation state when dialog visibility changes
   useEffect(() => {

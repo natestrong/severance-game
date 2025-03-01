@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import './App.css'
 import Header from './components/Header/Header'
 import GameBoard from './components/GameBoard/GameBoard'
@@ -59,7 +59,7 @@ const AppContent = () => {
       />
       {/* Add CRT Effect as a separate overlay */}
       <CRTEffect>
-        {/* This is now empty as we're using the effect as an overlay only */}
+        <div></div>
       </CRTEffect>
     </div>
   );

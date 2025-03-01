@@ -7,7 +7,7 @@ import './CRTEffect.css';
 
 // Custom CRT effects using post-processing effects
 const CRTEffects = () => {
-  const { size } = useThree();
+  useThree(); // Keep the hook even if we don't use size
   const [chromaticOffset, setChromaticOffset] = useState(0.003);
   const isVisible = useVisibility();
   
