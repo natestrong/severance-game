@@ -82,7 +82,7 @@
   display: flex;
   align-items: center;
   position: absolute;
-  right: 100px;
+  right: 115px; /* Increased from 100px to accommodate larger logo */
   top: 50%;
   transform: translateY(-50%);
   
@@ -99,8 +99,8 @@
 }
 
 .logo-container {
-  height: 75px;
-  width: 75px;
+  height: 90px; /* Increased from 75px */
+  width: 90px; /* Increased from 75px */
   position: absolute;
   right: 12px;
   top: 50%;
