@@ -1,5 +1,38 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 
+// MDR File names for level names
+const mdrFileNames = [
+  "Allentown",
+  "Astoria",
+  "Bellingham",
+  "Billings",
+  "Bodo",
+  "Cairns",
+  "Coleman",
+  "Cold Harbor",
+  "Cork",
+  "Culpepper",
+  "Chicxulub",
+  "Dranesville",
+  "Lexington",
+  "Loveland",
+  "Lucknow",
+  "Merida",
+  "Molde",
+  "Rhodes",
+  "Siena",
+  "Sopchoppy",
+  "St. Pierre",
+  "Sunset Blvd",
+  "Todos Santos",
+  "Trinity",
+  "Tumwater",
+  "Vilnius",
+  "Waynesboro",
+  "Wellington",
+  "Yakima"
+];
+
 type GameLevel = {
   name: string;
   id: string;
@@ -64,20 +97,30 @@ interface GameContextType {
   
   gameComplete: boolean;
   acknowledgeGameComplete: () => void;
+  resetGame: () => void;  // Add reset game function
 }
 
 // Initial values
 const initialGroupBoxes: GroupBox[] = [
-  { id: 'box1', number: '01', completionPercentage: 77, isComplete: false },
-  { id: 'box2', number: '02', completionPercentage: 70, isComplete: false },
-  { id: 'box3', number: '03', completionPercentage: 59, isComplete: false },
-  { id: 'box4', number: '04', completionPercentage: 52, isComplete: false },
-  { id: 'box5', number: '05', completionPercentage: 75, isComplete: false },
+  { id: 'box1', number: '01', completionPercentage: 87, isComplete: false },
+  { id: 'box2', number: '02', completionPercentage: 80, isComplete: false },
+  { id: 'box3', number: '03', completionPercentage: 69, isComplete: false },
+  { id: 'box4', number: '04', completionPercentage: 62, isComplete: false },
+  { id: 'box5', number: '05', completionPercentage: 85, isComplete: false },
 ];
 
+// Calculate the initial completion percentage based on the initialGroupBoxes
+const initialCompletionPercentage = initialGroupBoxes.reduce(
+  (total, box) => total + (Math.min(box.completionPercentage, 100) / initialGroupBoxes.length), 
+  0
+);
+
 const initialGameContext: GameContextType = {
-  currentLevel: { name: 'Cold Harbor', id: 'cold-harbor' },
-  completionPercentage: 67, 
+  currentLevel: {
+    name: "Cold Harbor",
+    id: "cold-harbor"
+  },
+  completionPercentage: initialCompletionPercentage, 
   setCurrentLevel: () => {},
   setCompletionPercentage: () => {},
   
@@ -97,7 +140,8 @@ const initialGameContext: GameContextType = {
   removeAnimation: () => {},
   
   gameComplete: false,
-  acknowledgeGameComplete: () => {}
+  acknowledgeGameComplete: () => {},
+  resetGame: () => {}  // Add empty implementation for type safety
 };
 
 // Create context
@@ -112,8 +156,12 @@ interface GameProviderProps {
 }
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
-  const [currentLevel, setCurrentLevel] = useState<GameLevel>(initialGameContext.currentLevel);
-  const [completionPercentage, setCompletionPercentage] = useState<number>(67);
+  // First game should start with Cold Harbor
+  const [currentLevel, setCurrentLevel] = useState<GameLevel>({
+    name: "Cold Harbor",
+    id: "cold-harbor"
+  });
+  const [completionPercentage, setCompletionPercentage] = useState<number>(initialCompletionPercentage);
   const [groupBoxes, setGroupBoxes] = useState<GroupBox[]>(initialGroupBoxes);
   const [grid, setGrid] = useState<GridCell[][]>([]);
   const [gridSize, setGridSize] = useState<number>(100);
@@ -647,6 +695,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   // Check if the game is complete (100% completion)
   useEffect(() => {
+    // Only trigger completion if we're at 100% and not already in complete state
     if (completionPercentage >= 100 && !gameComplete) {
       console.log("Game complete! Showing victory dialog after a 2-second delay.");
       // Wait 2 seconds before showing the victory dialog
@@ -658,6 +707,50 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     }
   }, [completionPercentage, gameComplete]);
 
+  // Keep track of whether this is the first game
+  const [isFirstGame, setIsFirstGame] = useState(true);
+  
+  // Function to reset the game with a new random level
+  const resetGame = () => {
+    console.log("Resetting game...");
+    
+    // First, set game complete to false to hide the dialog
+    setGameComplete(false);
+    
+    // Reset the overall completion percentage to 0
+    setCompletionPercentage(0);
+    
+    // Always pick a random level for resets
+    // Filter out "Cold Harbor" since it should only be the first level
+    const availableLevels = mdrFileNames.filter(name => name !== "Cold Harbor");
+    const randomIndex = Math.floor(Math.random() * availableLevels.length);
+    const newLevelName = availableLevels[randomIndex];
+    
+    console.log(`Setting new level: ${newLevelName}`);
+    
+    // Set the new level
+    setCurrentLevel({
+      name: newLevelName,
+      id: newLevelName.toLowerCase().replace(/\s+/g, '-')
+    });
+    
+    // For resets, always start with 0% completion
+    const resetGroupBoxes = groupBoxes.map(box => ({
+      ...box,
+      completionPercentage: 0,
+      isComplete: false
+    }));
+    setGroupBoxes(resetGroupBoxes);
+    
+    // Mark that the first game is complete
+    setIsFirstGame(false);
+    
+    // Reinitialize grid with current size
+    initializeGrid(gridSize);
+    
+    console.log("Game reset complete");
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -665,16 +758,15 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         completionPercentage,
         setCurrentLevel,
         setCompletionPercentage,
-        
+
         groupBoxes,
         updateGroupBox,
-        
+
         grid,
         gridSize,
         revealScaryNeighbors,
         selectScaryNumber,
         isGroupComplete,
-        
         initializeGrid,
         
         activeAnimations,
@@ -682,7 +774,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         removeAnimation,
         
         gameComplete,
-        acknowledgeGameComplete
+        acknowledgeGameComplete,
+        resetGame  // Add reset game function to the context
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './App.css'
 import Header from './components/Header/Header'
 import GameBoard from './components/GameBoard/GameBoard'
@@ -9,7 +9,7 @@ import { GameProvider, useGameContext } from './context/GameContext'
 
 // Inner App component that can use the game context
 const AppContent = () => {
-  const { gameComplete, acknowledgeGameComplete } = useGameContext();
+  const { gameComplete } = useGameContext();
   const gameboardContainerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to the middle of the gameboard on component mount
@@ -30,6 +30,13 @@ const AppContent = () => {
     }
   }, []);
 
+  // Simple noop function for dialog close
+  // The actual resetting happens in the VictoryDialog component
+  const handleDialogClose = () => {
+    console.log("Victory dialog closed");
+    // No need to do anything here, the dialog handles the reset
+  };
+
   return (
     <div className="app-container">
       <Header />
@@ -40,7 +47,7 @@ const AppContent = () => {
       <AnimationContainer />
       <VictoryDialog 
         isVisible={gameComplete} 
-        onClose={acknowledgeGameComplete} 
+        onClose={handleDialogClose} 
       />
     </div>
   );

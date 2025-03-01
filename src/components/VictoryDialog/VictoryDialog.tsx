@@ -2,6 +2,33 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import './VictoryDialog.css';
 import lumonLogo from '../../assets/Lumon_transparent.png';
+import { useGameContext } from '../../context/GameContext';
+
+// List of possible victory messages
+const lumonVictoryMessages = [
+  "Excellent work, Refiner. Your vigilance honors Kier's legacy. You've earned a well-deserved Music Dance Experience.",
+
+  "Macrodata successfully refined. Your efforts fortify Lumon's grand vision. Please enjoy a complimentary Melon Bar during your Wellness session.",
+
+  "Splendid refinement today. You've once again proven yourself worthy of the Waffle Party nomination. Kier smiles upon your diligence.",
+
+  "Task complete. Macrodata fears your meticulousness. You are truly an exemplar of Lumon's nine core principles.",
+
+  "Outstanding performance. Your work ethic aligns seamlessly with Lumon's harmony and purpose. Petey would be proud.",
+
+  "Your accuracy and speed today are commendable. Please reflect on your achievements during the scheduled Quiet Reflection Period. Praise Kier.",
+
+  "Data refined. The Board is pleased with your unwavering commitment. May your next cycle be equally fruitful and free of Defiant Jazz.",
+
+  "You've illuminated Lumon's path toward perfection today. Please proceed calmly to the Break Room—strictly for relaxation purposes.",
+
+  "Marvelous refinement efficiency. Lumon thanks you. Your performance secures you another step closer to earning a coveted Finger Trap.",
+
+  "Congratulations, loyal refiner. Your diligence contributes profoundly to human betterment. Irving would nod approvingly.",
+  
+  // Include the original message as well
+  "Congratulations. Your efficiency and dedication have exemplified the Core Principles of Lumon Industries. Your continued excellence helps illuminate humanity's path forward. Please enjoy a period of structured leisure before your next assignment. Praise Kier."
+];
 
 interface VictoryDialogProps {
   isVisible: boolean;
@@ -26,11 +53,16 @@ const VictoryDialog: React.FC<VictoryDialogProps> = ({ isVisible, onClose }) => 
   const controls = useAnimation();
   const isAnimatingRef = useRef(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [victoryMessage, setVictoryMessage] = useState("");
+  const { resetGame, acknowledgeGameComplete } = useGameContext();
   
   // Reset animation state when dialog visibility changes
   useEffect(() => {
     if (isVisible) {
       setIsClosing(false);
+      // Pick a random victory message
+      const randomIndex = Math.floor(Math.random() * lumonVictoryMessages.length);
+      setVictoryMessage(lumonVictoryMessages[randomIndex]);
       // Start the jumping animation when dialog becomes visible
       jumpingAnimation();
     }
@@ -41,6 +73,7 @@ const VictoryDialog: React.FC<VictoryDialogProps> = ({ isVisible, onClose }) => 
     if (!isAnimatingRef.current) {
       setIsClosing(true);
       await reverseJumpingAnimation();
+      resetGame(); // Reset the game when dialog closes (this includes acknowledgeGameComplete)
       onClose();
     }
   };
@@ -150,7 +183,7 @@ const VictoryDialog: React.FC<VictoryDialogProps> = ({ isVisible, onClose }) => 
                 <img src={lumonLogo} alt="Lumon Industries Logo" />
               </div>
               <p className="victory-text">
-                Congratulations. Your efficiency and dedication have exemplified the Core Principles of Lumon Industries. Your continued excellence helps illuminate humanity's path forward. Please enjoy a period of structured leisure before your next assignment. Praise Kier.
+                {victoryMessage}
               </p>
             </div>
           </motion.div>
