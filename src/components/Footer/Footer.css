@@ -52,12 +52,12 @@
   height: 14px;
   background-image: linear-gradient(
     to top,
-    #00e6ff 0%,
-    #00e6ff 35%, 
+    var(--light-blue) 0%,
+    var(--light-blue) 35%, 
     transparent 35%,
     transparent 65%,
-    #00e6ff 65%,
-    #00e6ff 100%
+    var(--light-blue) 65%,
+    var(--light-blue) 100%
   );
   z-index: 10;
 }

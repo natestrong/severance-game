@@ -7,7 +7,7 @@
 /* Define color variables for consistency */
 :root {
   --dark-blue: #001f3d; /* Darker version of the previous #00284d */
-  --light-blue: #00e6ff; /* Same as the header light blue */
+  --light-blue: #1db7ff; /* Foreground color throughout the app */
   --medium-blue: #004a77;
 }
 

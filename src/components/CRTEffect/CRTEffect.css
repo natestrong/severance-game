@@ -28,15 +28,15 @@ body::after {
   z-index: 9500; /* Higher than victory dialog (8000) but below WebGL effects (10000) */
 }
 
-/* Scanlines effect - increased size and visibility */
+/* Scanlines effect - fine and subtle */
 body::before {
   background: linear-gradient(
     to bottom,
     rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.6) 50%  /* Darker scanlines for better visibility */
+    rgba(0, 0, 0, 0.5) 50%  /* Slightly reduced darkness for finer appearance */
   );
-  background-size: 100% 8px; /* Increased from 4px to 8px for larger scanlines */
-  opacity: 0.55; /* Slightly increased opacity for better visibility */
+  background-size: 100% 4px; /* Fine scanlines */
+  opacity: 0.45; /* Reduced opacity for subtlety */
   pointer-events: none !important;
   will-change: opacity;
   mix-blend-mode: multiply; /* Ensures scanlines blend with all content below */
@@ -85,11 +85,11 @@ body::after {
   pointer-events: none;
   background: radial-gradient(
     circle at center,
-    rgba(100, 220, 255, 0.5) 0%,    /* Brighter center */
-    rgba(100, 220, 255, 0.35) 15%,  /* Extended bright area */
-    rgba(100, 220, 255, 0.25) 30%,  /* Extended mid area */
-    rgba(100, 220, 255, 0.15) 45%,  /* Wider glow */
-    rgba(100, 220, 255, 0.05) 65%,  /* Subtle outer glow */
+    rgba(29, 183, 255, 0.5) 0%,    /* Brighter center */
+    rgba(29, 183, 255, 0.35) 15%,  /* Extended bright area */
+    rgba(29, 183, 255, 0.25) 30%,  /* Extended mid area */
+    rgba(29, 183, 255, 0.15) 45%,  /* Wider glow */
+    rgba(29, 183, 255, 0.05) 65%,  /* Subtle outer glow */
     transparent 85%                 /* Extends almost to edge */
   );
   mix-blend-mode: screen;
@@ -97,7 +97,7 @@ body::after {
 
 /* Simple text glow for headings */
 h1, h2, h3 {
-  text-shadow: 0 0 8px rgba(100, 200, 255, 0.5);
+  text-shadow: 0 0 8px rgba(29, 183, 255, 0.5);
 }
 
 /* Optional: Add a slight pixel distortion effect */
