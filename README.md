@@ -2,6 +2,10 @@
 
 A React TypeScript application with a clean layout featuring a header, game board, and footer.
 
+## Demo
+
+![Severance Game Demo](/public/assets/severance-demo-small.gif)
+
 ## Project Overview
 
 This project is a React application built with TypeScript and Vite, structured with a simple and clean layout:
