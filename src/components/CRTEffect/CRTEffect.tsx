@@ -11,7 +11,7 @@ const CRTEffects = () => {
   const [chromaticOffset, setChromaticOffset] = useState(0.003);
   const isVisible = useVisibility();
   
-  // Animate chromatic aberration - only when visible
+  // Only animate the chromatic aberration for better performance
   useFrame(({ clock }) => {
     // Skip updating if not visible (tab inactive)
     if (!isVisible) return;
@@ -29,12 +29,12 @@ const CRTEffects = () => {
         blendFunction={BlendFunction.NORMAL}
       />
       
-      {/* Phosphor glow */}
+      {/* Simple phosphor glow - brighter and wider */}
       <Bloom 
-        intensity={0.6} 
-        luminanceThreshold={0.5} 
-        luminanceSmoothing={0.8} 
-        mipmapBlur
+        intensity={2.0}     /* Brighter glow */
+        luminanceThreshold={0.15}  /* Lower threshold to make more elements glow */
+        luminanceSmoothing={0.7}   /* Less smoothing for more pronounced effect */
+        radius={0.9}       /* Slightly wider radius */
       />
     </EffectComposer>
   );
@@ -64,6 +64,8 @@ const CRTEffect: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       
       {/* Add CRT overlay without affecting interaction */}
       <div className="crt-overlay" style={{ pointerEvents: 'none' }}>
+        {/* Add phosphor glow overlay */}
+        <div className="crt-phosphor-overlay"></div>
         <Canvas
           gl={{
             powerPreference: "high-performance",
@@ -72,7 +74,7 @@ const CRTEffect: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             depth: false      // Disable depth buffer if not needed
           }}
           frameloop={isVisible ? "always" : "never"} // Pause rendering when not visible
-          style={{ pointerEvents: 'none' }} // Ensure pointer events pass through
+          style={{ pointerEvents: 'none', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000 }} // Ensure it's above everything
         >
           <Suspense fallback={null}>
             <FullscreenQuad />

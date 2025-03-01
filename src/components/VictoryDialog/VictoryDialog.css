@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 8000; /* High z-index but below the CRT effect overlay (10000) */
   backdrop-filter: none;
 }
 
