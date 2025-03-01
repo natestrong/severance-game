@@ -1,0 +1,88 @@
+/* No longer using crt-container wrapper */
+body {
+  overflow: auto !important; /* Ensure scrolling works at the document level */
+}
+
+/* WebGL overlay container */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none !important; /* This ensures clicks pass through to underlying elements */
+  z-index: 9999;
+  opacity: 0.7; /* Make sure effects are visible */
+}
+
+/* CRT screen curvature effect applied directly to body */
+body::before, 
+body::after {
+  content: "";
+  pointer-events: none !important; /* This ensures clicks pass through */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+
+/* Scanlines effect */
+body::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.4) 50%
+  );
+  background-size: 100% 4px;
+  opacity: 0.4;
+  pointer-events: none !important;
+  will-change: opacity;
+}
+
+/* Vignette effect */
+body::after {
+  background: radial-gradient(
+    circle at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  opacity: 0.8;
+  pointer-events: none !important;
+  z-index: 998;
+  will-change: opacity;
+  animation: flicker 15s infinite;
+}
+
+/* Screen flicker animation */
+@keyframes flicker {
+  0% { opacity: 0.8; }
+  3% { opacity: 0.75; }
+  6% { opacity: 0.8; }
+  7% { opacity: 0.75; }
+  8% { opacity: 0.8; }
+  9% { opacity: 0.75; }
+  10% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  84% { opacity: 0.73; }
+  85% { opacity: 0.8; }
+  87% { opacity: 0.75; }
+  88% { opacity: 0.8; }
+  90% { opacity: 0.75; }
+  100% { opacity: 0.8; }
+}
+
+/* Optional: Add a slight pixel distortion effect */
+body {
+  transform-style: preserve-3d;
+}
+
+/* For Safari compatibility, add vendor prefixes */
+@supports (-webkit-backdrop-filter: none) {
+  body::before,
+  body::after {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+  }
+}

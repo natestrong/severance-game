@@ -6,11 +6,19 @@ import Footer from './components/Footer/Footer'
 import AnimationContainer from './components/AnimationContainer/AnimationContainer'
 import VictoryDialog from './components/VictoryDialog/VictoryDialog'
 import { GameProvider, useGameContext } from './context/GameContext'
+import CRTEffect from './components/CRTEffect/CRTEffect'
+import applySafariPolyfills from './components/CRTEffect/SafariPolyfill'
 
 // Inner App component that can use the game context
 const AppContent = () => {
   const { gameComplete } = useGameContext();
   const gameboardContainerRef = useRef<HTMLDivElement>(null);
+
+  // Apply Safari polyfills and initialize effects
+  useEffect(() => {
+    // Apply Safari-specific fixes
+    applySafariPolyfills();
+  }, []);
 
   // Scroll to the middle of the gameboard on component mount
   useEffect(() => {
@@ -49,6 +57,10 @@ const AppContent = () => {
         isVisible={gameComplete} 
         onClose={handleDialogClose} 
       />
+      {/* Add CRT Effect as a separate overlay */}
+      <CRTEffect>
+        {/* This is now empty as we're using the effect as an overlay only */}
+      </CRTEffect>
     </div>
   );
 };
